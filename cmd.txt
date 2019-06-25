@@ -9,5 +9,6 @@ mlflow ui
 
 4。启动服务：
 mlflow models serve -m runs:/<RUN_ID>/model
+mlflow models serve -m runs:/<RUN_ID>/model --port 1234                         # 指定端口
 mlflow models serve -m runs:/58179397dd214903a574c23f10243264/model
 mlflow models serve --no-conda -m runs:/58179397dd214903a574c23f10243264/model  # 不新建conda环境
