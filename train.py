@@ -44,22 +44,28 @@ if __name__ == "__main__":
     l1_ratio = float(sys.argv[2]) if len(sys.argv) > 2 else 0.5
 
     with mlflow.start_run():
-        lr = ElasticNet(alpha=alpha, l1_ratio=l1_ratio, random_state=42)    # 线性回归
-        lr.fit(train_x, train_y)
+        mlflow.log_param("alpha", alpha)            # 跟踪参数
+        mlflow.log_param("l1_ratio", l1_ratio)
 
-        predicted_qualities = lr.predict(test_x)
+        for epoch in range(10):
+            lr = ElasticNet(alpha=alpha, l1_ratio=l1_ratio, random_state=42)    # 线性回归
+            lr.fit(train_x, train_y)
 
-        (rmse, mae, r2) = eval_metrics(test_y, predicted_qualities)         # 均方误差评估训练效果
+            predicted_qualities = lr.predict(test_x)
+
+            (rmse, mae, r2) = eval_metrics(test_y, predicted_qualities)         # 均方误差评估训练效果
+
+            mlflow.log_metric(key="rmse", value=rmse, step=epoch)               # 跟踪度量值
+            mlflow.log_metric(key="r2", value=r2, step=epoch)
+            mlflow.log_metric(key="mae", value=mae, step=epoch)
 
         print("Elasticnet model (alpha=%f, l1_ratio=%f):" % (alpha, l1_ratio))
         print("  RMSE: %s" % rmse)
         print("  MAE: %s" % mae)
         print("  R2: %s" % r2)
 
-        mlflow.log_param("alpha", alpha)            # 跟踪参数
-        mlflow.log_param("l1_ratio", l1_ratio)
-        mlflow.log_metric("rmse", rmse)             # 跟踪度量值
-        mlflow.log_metric("r2", r2)
-        mlflow.log_metric("mae", mae)
-
         mlflow.sklearn.log_model(lr, "model")       # 跟踪（保存）模型
+
+    # with mlflow.start_run():
+    #     for epoch in range(0, 100):
+    #         mlflow.log_metric(key="quality", value=2 * epoch, step=epoch)
