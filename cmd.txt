@@ -15,3 +15,11 @@ mlflow models serve -m runs:/<RUN_ID>/model
 mlflow models serve -m runs:/<RUN_ID>/model --port 1234                         # 指定端口
 mlflow models serve -m runs:/58179397dd214903a574c23f10243264/model
 mlflow models serve --no-conda -m runs:/58179397dd214903a574c23f10243264/model  # 不新建conda环境
+mlflow models serve -m /Users/mlflow/mlflow-prototype/mlruns/0/7c1a0d5c42844dcdb8f5191146925174/artifacts/model -p 1234
+
+
+
+
+
+
+
