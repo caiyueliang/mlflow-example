@@ -1,0 +1,13 @@
+1。进入目录：mlflow-example/
+
+2。训练模型：
+mlflow run ./ -P alpha=0.5
+mlflow run --no-conda -P alpha=0.5  # 不新建conda环境
+
+3。Wei UI
+mlflow ui
+
+4。启动服务：
+mlflow models serve -m runs:/<RUN_ID>/model
+mlflow models serve -m runs:/58179397dd214903a574c23f10243264/model
+mlflow models serve --no-conda -m runs:/58179397dd214903a574c23f10243264/model  # 不新建conda环境
