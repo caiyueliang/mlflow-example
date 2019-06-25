@@ -56,10 +56,10 @@ if __name__ == "__main__":
         print("  MAE: %s" % mae)
         print("  R2: %s" % r2)
 
-        mlflow.log_param("alpha", alpha)
+        mlflow.log_param("alpha", alpha)            # 跟踪参数
         mlflow.log_param("l1_ratio", l1_ratio)
-        mlflow.log_metric("rmse", rmse)
+        mlflow.log_metric("rmse", rmse)             # 跟踪度量值
         mlflow.log_metric("r2", r2)
         mlflow.log_metric("mae", mae)
 
-        mlflow.sklearn.log_model(lr, "model")
+        mlflow.sklearn.log_model(lr, "model")       # 跟踪（保存）模型
