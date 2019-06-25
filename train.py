@@ -66,6 +66,8 @@ if __name__ == "__main__":
 
         mlflow.sklearn.log_model(lr, "model")       # 跟踪（保存）模型
 
+    # with mlflow.create_experiment():
+
     # with mlflow.start_run():
     #     for epoch in range(0, 100):
     #         mlflow.log_metric(key="quality", value=2 * epoch, step=epoch)
