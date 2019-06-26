@@ -24,8 +24,8 @@ def eval_metrics(actual, pred):
 
 
 if __name__ == "__main__":
-    # old_tracking_uri = "/Users/qudian/mlflow_logs/"
-    # mlflow.set_tracking_uri(old_tracking_uri)
+    old_tracking_uri = "/Users/qudian/mlflow_logs/"
+    mlflow.set_tracking_uri(old_tracking_uri)
 
     warnings.filterwarnings("ignore")
     np.random.seed(40)
@@ -46,7 +46,31 @@ if __name__ == "__main__":
     alpha = float(sys.argv[1]) if len(sys.argv) > 1 else 0.5
     l1_ratio = float(sys.argv[2]) if len(sys.argv) > 2 else 0.5
 
-    # with mlflow.create_experiment():
+    # # =============================================================================================
+    # mlflow.create_experiment("experiment")
+    # mlflow.log_param("alpha", alpha)  # 跟踪参数
+    # mlflow.log_param("l1_ratio", l1_ratio)
+    #
+    # for epoch in range(10):
+    #     lr = ElasticNet(alpha=alpha, l1_ratio=l1_ratio, random_state=42)  # 线性回归
+    #     lr.fit(train_x, train_y)
+    #
+    #     predicted_qualities = lr.predict(test_x)
+    #
+    #     (rmse, mae, r2) = eval_metrics(test_y, predicted_qualities)  # 均方误差评估训练效果
+    #
+    #     mlflow.log_metric(key="rmse", value=rmse, step=epoch)  # 跟踪度量值
+    #     mlflow.log_metric(key="r2", value=r2, step=epoch)
+    #     mlflow.log_metric(key="mae", value=mae, step=epoch)
+    #
+    # print("Elasticnet model (alpha=%f, l1_ratio=%f):" % (alpha, l1_ratio))
+    # print("  RMSE: %s" % rmse)
+    # print("  MAE: %s" % mae)
+    # print("  R2: %s" % r2)
+    #
+    # mlflow.sklearn.log_model(lr, "model")  # 跟踪（保存）模型
+
+    # =============================================================================================
     with mlflow.start_run():
         mlflow.log_param("alpha", alpha)            # 跟踪参数
         mlflow.log_param("l1_ratio", l1_ratio)
@@ -70,8 +94,3 @@ if __name__ == "__main__":
 
         mlflow.sklearn.log_model(lr, "model")       # 跟踪（保存）模型
 
-    # with mlflow.create_experiment():
-
-    # with mlflow.start_run():
-    #     for epoch in range(0, 100):
-    #         mlflow.log_metric(key="quality", value=2 * epoch, step=epoch)
