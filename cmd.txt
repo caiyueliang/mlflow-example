@@ -4,9 +4,10 @@
 python train.py <alpha> <l1_ratio>
 
 3。用mlflow来训练模型：
-mlflow run ./ -P alpha=0.5
-mlflow run --no-conda -P alpha=0.5  # 不新建conda环境
-mlflow run ./ -e train_1 -P alpha=0.5
+mlflow run https://github.com/mlflow/mlflow-example.git -P alpha=5              # git方式启动
+mlflow run ./ -P alpha=0.5                                                      # 本地启动
+mlflow run --no-conda -P alpha=0.5                                              # 不新建conda环境
+mlflow run ./ -e train_1 -P alpha=0.5                                           # 选择不同的入口点
 
 4。Wei UI
 mlflow ui
