@@ -23,6 +23,11 @@ mlflow models serve -m /Users/mlflow/mlflow-prototype/mlruns/0/7c1a0d5c42844dcdb
 export MLFLOW_EXPERIMENT_NAME=fraud-detection
 mlflow experiments create --experiment-name fraud-detection
 
+7。MLflow跟踪服务器：
+mlflow server \
+    --backend-store-uri /Users/qudian/persistent-disk \
+    --default-artifact-root /Users/qudian/qudian-ml/mlflow-example/mlruns \
+    --host 0.0.0.0
 
 
 
