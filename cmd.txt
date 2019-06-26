@@ -26,9 +26,12 @@ mlflow experiments create --experiment-name fraud-detection
 7。MLflow跟踪服务器：
 mlflow server \
     --backend-store-uri /Users/qudian/persistent-disk \
-    --default-artifact-root /Users/qudian/qudian-ml/mlflow-example/mlruns \
+    --default-artifact-root file:///Users/qudian/qudian-ml/mlflow-example/mlruns/ \
     --host 0.0.0.0
-
+mlflow server \
+    --backend-store-uri /Users/qudian/persistent-disk \
+    --default-artifact-root /Users/qudian/qudian-ml/mlflow-example/mlruns/ \
+    --host 0.0.0.0
 
 
 
