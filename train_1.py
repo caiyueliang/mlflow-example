@@ -24,6 +24,9 @@ def eval_metrics(actual, pred):
 
 
 if __name__ == "__main__":
+    # old_tracking_uri = "/Users/qudian/mlflow_logs/"
+    # mlflow.set_tracking_uri(old_tracking_uri)
+
     warnings.filterwarnings("ignore")
     np.random.seed(40)
 
