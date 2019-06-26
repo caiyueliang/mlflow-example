@@ -33,5 +33,14 @@ mlflow server \
     --default-artifact-root /Users/qudian/qudian-ml/mlflow-example/mlruns/ \
     --host 0.0.0.0
 
+8。REST API
+https://www.mlflow.org/docs/latest/rest-api.html
+创建实验：http://localhost:5000/api/2.0/mlflow/experiments/create
+列出实验：http://localhost:5000/api/2.0/mlflow/experiments/list
 
+创建运行：http://localhost:5000/api/2.0/mlflow/runs/create
+获取运行：http://localhost:5000/api/2.0/mlflow/runs/get      # 获取运行的元数据，指标，参数和标签。
 
+获取metrics历史记录：http://localhost:5000/api/2.0/mlflow/metrics/get-history
+
+列出artifacts：http://localhost:5000/api/2.0/mlflow/artifacts/list
