@@ -1,7 +1,11 @@
 name: tutorial
 
 conda_env: conda.yaml
+# Can have a docker_env instead of a conda_env, e.g.
+# docker_env:
+#    image:  mlflow-docker-example
 
+# parameters支持类型：string，float，path，uri
 entry_points:
   main:
     parameters:
