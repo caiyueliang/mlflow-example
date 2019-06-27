@@ -1,8 +1,8 @@
 import mlflow
 
 
-def run_main():
-    parameters = {"alpha": 0.3}
+def run_main(alpha=0.5):
+    parameters = {"alpha": alpha}
     submitted_run = mlflow.projects.run(uri="./", entry_point="main", parameters=parameters)
     run_id = submitted_run.run_id
     mlflow_service = mlflow.tracking.MlflowClient()
@@ -14,8 +14,8 @@ def run_main():
     # assert run.data.params == parameters
 
 
-def run_train_1():
-    parameters = {"alpha": 0.4}
+def run_train_1(alpha=0.5):
+    parameters = {"alpha": alpha}
     submitted_run = mlflow.projects.run(uri="./", entry_point="train_1", parameters=parameters)
     run_id = submitted_run.run_id
     mlflow_service = mlflow.tracking.MlflowClient()
@@ -28,5 +28,5 @@ def run_train_1():
 
 
 if __name__ == '__main__':
-    run_main()
+    run_main(alpha=0.4)
     # run_train_1()
