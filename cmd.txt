@@ -34,6 +34,11 @@ mlflow server \
     --backend-store-uri /Users/qudian/persistent-disk \
     --default-artifact-root /Users/qudian/qudian-ml/mlflow-example/mlruns/ \
     --host 0.0.0.0
+mlflow server \
+    --backend-store-uri mysql://id:pw1!@host:3306/mlflow \
+    --default-artifact-root hdfs://:host:50070/data/pay_model/ \
+    --host 0.0.0.0
+
 
 8。REST API
 https://www.mlflow.org/docs/latest/rest-api.html
