@@ -11,13 +11,13 @@ entry_points:
     parameters:
       alpha: float
       l1_ratio: {type: float, default: 0.1}
-    command: "python train.py {alpha} {l1_ratio}"
+    command: "python runner_wine/train.py {alpha} {l1_ratio}"
 
   train_1:
     parameters:
       alpha: float
       l1_ratio: {type: float, default: 0.5}
-    command: "python train_1.py {alpha} {l1_ratio}"
+    command: "python runner_wine/train_1.py {alpha} {l1_ratio}"
 
   logistic_regression:
-    command: "python sklearn_logistic_regression/train.py"
+    command: "python runner_logistic/train.py"
