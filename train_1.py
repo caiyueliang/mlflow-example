@@ -93,5 +93,4 @@ if __name__ == "__main__":
         print("  R2: %s" % r2)
 
         mlflow.sklearn.log_model(lr, "model")       # 跟踪（保存）模型
-
-        mlflow
+        mlflow.sklearn.log_model(lr, "model_1")
