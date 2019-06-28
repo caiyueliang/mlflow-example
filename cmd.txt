@@ -6,10 +6,9 @@ python train.py <alpha> <l1_ratio>
 3。用mlflow来训练模型：
 mlflow run https://github.com/mlflow/mlflow-example.git -P alpha=5              # git方式启动
 mlflow run ./ -P alpha=0.5                                                      # 本地启动
-mlflow run --no-conda -P alpha=0.5                                              # 不新建conda环境
+mlflow run ./ --no-conda -P alpha=0.5                                           # 不新建conda环境
 mlflow run ./ -e train_1 -P alpha=0.5                                           # 选择不同的入口点
 mlflow run ./ -e logistic_regression
-
 
 4。Wei UI
 mlflow ui
@@ -58,3 +57,6 @@ https://www.mlflow.org/docs/latest/rest-api.html
 获取metrics历史记录：http://localhost:5000/api/2.0/mlflow/metrics/get-history
 
 列出artifacts：http://localhost:5000/api/2.0/mlflow/artifacts/list
+
+9。跳板机上运行
+mlflow run ./ -e model_train -P project_id=16 version_id=3 extract_type=hive day=2019-06-26 hour=00 minute=00
