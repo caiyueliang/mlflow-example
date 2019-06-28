@@ -20,4 +20,4 @@ entry_points:
     command: "python runner_wine/train_1.py {alpha} {l1_ratio}"
 
   logistic_regression:
-    command: "python runner_logistic/train.py"
+    command: "python runner_logistic/train_logistic.py"
