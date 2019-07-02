@@ -5,7 +5,8 @@ from random import random as rand
 
 def run_test():
     for l1, alpha in itertools.product([0.75, 1], [0, 0.5]):
-        with mlflow.start_run(run_name='ipython'):
+        # with mlflow.start_run(run_id='91878d6666994fa8b7205f4a83171e8a', experiment_id=2, run_name='ipython'):
+        with mlflow.start_run(run_id='91878d6666994fa8b7205f4a83171e8a', experiment_id=2, run_name='ipython'):
             parameters = {
                 'l1': str(l1),
                 'alpha': str(alpha),
