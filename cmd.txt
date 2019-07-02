@@ -69,6 +69,10 @@ mlflow run [...] --experiment-name [name]
 mlflow run ./ --no-conda -P alpha=0.5 --experiment-name Test_1
 
 # ==============================================================================
+3.1.重新运行某一个RUN ID，与experiment-name无关
+mlflow run ./ --no-conda -P alpha=0.5 --run-id 2b9d7f09da0b480bb6adcfb7b1e129b7
+
+# ==============================================================================
 mlflow run 参数：
 -v, --version VERSION        Version of the project to run, as a Git commit reference for Git projects.
 

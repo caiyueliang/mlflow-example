@@ -1,4 +1,8 @@
 import mlflow
+from mlflow.tracking import MlflowClient
+from mlflow.exceptions import MlflowException
+from mlflow.store.runs_artifact_repo import RunsArtifactRepository
+from mlflow.store.s3_artifact_repo import S3ArtifactRepository
 
 
 def test_runs_artifact_repo_init():
@@ -13,3 +17,19 @@ def test_runs_artifact_repo_init():
     assert isinstance(runs_repo.repo, S3ArtifactRepository)
     expected_absolute_uri = "%s%s/artifacts/path/to/model" % (artifact_location, run_id)
     assert runs_repo.repo.artifact_uri == expected_absolute_uri
+
+
+# 使用Tracking Service API管理实验和运行
+# MLflow提供了更详细的跟踪服务API，用于管理实验并直接运行，可通过mlflow.tracking模块中的客户端SDK获得。
+# 这样就可以查询有关过去运行的数据，记录有关它们的其他信息，创建实验，为运行添加标记等。
+def manage_and_run():
+    client = MlflowClient()
+    experiments = client.list_experiments()                     # returns a list of mlflow.entities.Experiment
+    print('[manage_and_run] experiments: ', experiments)
+    run = client.create_run(experiments[0].experiment_id)       # returns mlflow.entities.Run
+    client.log_param(run.info.run_id, "hello", "world")
+    client.set_terminated(run.info.run_id)
+
+
+if __name__ == '__main__':
+    manage_and_run()
