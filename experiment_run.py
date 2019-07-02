@@ -25,7 +25,13 @@ def test_runs_artifact_repo_init():
 def manage_and_run():
     client = MlflowClient()
     experiments = client.list_experiments()                     # returns a list of mlflow.entities.Experiment
-    print('[manage_and_run] experiments: ', experiments)
+    for experiment in experiments:
+        print('[manage_and_run] experiment: ', experiment.experiment_id, experiment.name)
+
+        experiment_id = experiment.experiment_id
+        run_infos = client.list_run_infos(experiment_id)
+        print('[manage_and_run] run_infos: ', run_infos)
+
     run = client.create_run(experiments[0].experiment_id)       # returns mlflow.entities.Run
     client.log_param(run.info.run_id, "hello", "world")
     client.set_terminated(run.info.run_id)
