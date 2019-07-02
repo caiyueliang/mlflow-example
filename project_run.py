@@ -1,4 +1,22 @@
 import mlflow
+import itertools
+from random import random as rand
+
+
+def run_test():
+    for l1, alpha in itertools.product([0.75, 1], [0, 0.5]):
+        with mlflow.start_run(run_name='ipython'):
+            parameters = {
+                'l1': str(l1),
+                'alpha': str(alpha),
+            }
+            # metrics = {
+            #     'MAE': [rand()],
+            #     'R2': [rand()],
+            #     'RMSE': [rand()],
+            # }
+            mlflow.log_params(parameters)
+            # mlflow.log_metrics(metrics)
 
 
 def run_main(alpha=0.5):
@@ -28,5 +46,6 @@ def run_train_1(alpha=0.5):
 
 
 if __name__ == '__main__':
-    run_main(alpha=0.4)
+    run_test()
+    # run_main(alpha=0.4)
     # run_train_1()
