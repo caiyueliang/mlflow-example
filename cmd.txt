@@ -68,6 +68,9 @@ mlflow experiments create --experiment-name Test_1
 mlflow run [...] --experiment-name [name]
 mlflow run ./ --no-conda -P alpha=0.5 --experiment-name Test_1
 
+2.3.运行一个commit id:
+mlflow run ./ --no-conda -P alpha=0.5 --experiment-name Test_1 -v 61139ef432cacb2f927fd7923e32de515467f3db
+
 # ==============================================================================
 3.1.重新运行某一个RUN ID，与experiment-name无关
 mlflow run ./ --no-conda -P alpha=0.5 --run-id 2b9d7f09da0b480bb6adcfb7b1e129b7
