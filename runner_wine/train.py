@@ -43,7 +43,8 @@ if __name__ == "__main__":
     alpha = float(sys.argv[1]) if len(sys.argv) > 1 else 0.5
     l1_ratio = float(sys.argv[2]) if len(sys.argv) > 2 else 0.5
 
-    with mlflow.start_run():
+    # start_run(run_id=None, experiment_id=None, run_name=None, nested=False)
+    with mlflow.start_run(run_name="train.py"):
         mlflow.log_param("alpha", alpha)            # 跟踪参数
         mlflow.log_param("l1_ratio", l1_ratio)
 

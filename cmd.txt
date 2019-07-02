@@ -68,11 +68,11 @@ mlflow experiments create --experiment-name Test_1
 mlflow run [...] --experiment-name [name]
 mlflow run ./ --no-conda -P alpha=0.5 --experiment-name Test_1
 
-2.3.运行一个commit id:（只支持Git）（且如果Git中没有创建对应的实验名称的话，不能设定--experiment-name）
+2.3.运行一个commit id:（只支持Git）
 mlflow run git@github.com:caiyueliang/mlflow-example.git --no-conda -P alpha=0.5                            # 不会做git clone，只生成mlruns/
 
 mlflow run git@github.com:caiyueliang/mlflow-example.git --no-conda -P alpha=0.5 --experiment-name Test_1
-mlflow run git@github.com:caiyueliang/mlflow-example.git --no-conda -P alpha=0.5 --experiment-name Test_1 -v 61139ef432cacb2f927fd7923e32de515467f3db
+mlflow run git@github.com:caiyueliang/mlflow-example.git --no-conda -P alpha=0.9 --experiment-name Test_1 -v 61139ef432cacb2f927fd7923e32de515467f3db
 
 # ==============================================================================
 3.1.重新运行某一个RUN ID，与experiment-name无关
@@ -95,9 +95,24 @@ json文件的路径（必须以“.json”结尾）或json字符串，该字符�
 --run-id RUN_ID               如果指定，将使用给定的运行ID，而不是创建新的运行。注意：此参数由MLFlow项目API内部使用，不应指定。
 
 # ==============================================================================
+mlflow experiments: 管理实验，查找，删除等
+mlflow experiments --help
+Commands:
+  create   Create an experiment.
+  delete   Mark an active experiment for deletion.
+  list     List all experiments in the configured tracking server.
+  rename   Renames an active experiment.
+  restore  Restore a deleted experiment.
 
-
-
+# ==============================================================================
+mlflow runs: 管理run，查找，删除等
+Commands:
+  delete    Mark a run for deletion.
+  describe  All of run details will print to the stdout as JSON format.
+  list      List all runs of the specified experiment in the configured...
+  restore   Restore a deleted run.
+mlflow runs list --experiment-id [id]
+mlflow runs delete --run-id [id]
 
 
 

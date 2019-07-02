@@ -71,7 +71,7 @@ if __name__ == "__main__":
     # mlflow.sklearn.log_model(lr, "model")  # 跟踪（保存）模型
 
     # =============================================================================================
-    with mlflow.start_run():
+    with mlflow.start_run(run_name="train_1.py"):
         mlflow.log_param("alpha", alpha)            # 跟踪参数
         mlflow.log_param("l1_ratio", l1_ratio)
 
