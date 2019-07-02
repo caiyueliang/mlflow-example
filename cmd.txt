@@ -68,8 +68,11 @@ mlflow experiments create --experiment-name Test_1
 mlflow run [...] --experiment-name [name]
 mlflow run ./ --no-conda -P alpha=0.5 --experiment-name Test_1
 
-2.3.运行一个commit id:
-mlflow run ./ --no-conda -P alpha=0.5 --experiment-name Test_1 -v 61139ef432cacb2f927fd7923e32de515467f3db
+2.3.运行一个commit id:（只支持Git）（且如果Git中没有创建对应的实验名称的话，不能设定--experiment-name）
+mlflow run git@github.com:caiyueliang/mlflow-example.git --no-conda -P alpha=0.5                            # 不会做git clone，只生成mlruns/
+
+mlflow run git@github.com:caiyueliang/mlflow-example.git --no-conda -P alpha=0.5 --experiment-name Test_1
+mlflow run git@github.com:caiyueliang/mlflow-example.git --no-conda -P alpha=0.5 --experiment-name Test_1 -v 61139ef432cacb2f927fd7923e32de515467f3db
 
 # ==============================================================================
 3.1.重新运行某一个RUN ID，与experiment-name无关
