@@ -69,7 +69,22 @@ mlflow run [...] --experiment-name [name]
 mlflow run ./ --no-conda -P alpha=0.5 --experiment-name Test_1
 
 # ==============================================================================
+mlflow run 参数：
+-v, --version VERSION        Version of the project to run, as a Git commit reference for Git projects.
 
+-b, --backend BACKEND
+如果针对Databricks运行，将针对Databricks工作区运行，确定如下：如果设置了“databricks://profile”形式的Databricks跟踪URI（例如，通过设置mlflow_tracking_uri环境变量），将针对<profile>指定的工作区运行。
+否则，将针对默认databricks cli配置文件指定的工作区运行。请参阅https://github.com/databricks/databricks-cli以获取有关配置databricks cli配置文件的更多信息。
+
+-c, --backend-config FILE
+json文件的路径（必须以“.json”结尾）或json字符串，该字符串将作为配置传递到后端。对于Databricks后端，这应该是一个集群规范：有关详细信息，
+请参阅https://docs.data bricks.com/api/latest/jobs.html_jobs cluster spec newcluster。请注意，MLFlow运行当前是针对新集群启动的。
+
+--storage-dir TEXT            仅当“backend”是local.mlflow时才有效。mlflow从分布式URI下载项目，将项目传递给类型为“path”的参数，并将其传递给存储目录的子目录。
+
+--run-id RUN_ID               如果指定，将使用给定的运行ID，而不是创建新的运行。注意：此参数由MLFlow项目API内部使用，不应指定。
+
+# ==============================================================================
 
 
 
