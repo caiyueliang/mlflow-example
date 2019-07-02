@@ -57,6 +57,3 @@ https://www.mlflow.org/docs/latest/rest-api.html
 获取metrics历史记录：http://localhost:5000/api/2.0/mlflow/metrics/get-history
 
 列出artifacts：http://localhost:5000/api/2.0/mlflow/artifacts/list
-
-9。跳板机上运行
-mlflow run ./ -e model_train -P project_id=16 version_id=3 extract_type=hive day=2019-06-26 hour=00 minute=00
