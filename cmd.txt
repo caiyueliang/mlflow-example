@@ -57,3 +57,28 @@ https://www.mlflow.org/docs/latest/rest-api.html
 获取metrics历史记录：http://localhost:5000/api/2.0/mlflow/metrics/get-history
 
 列出artifacts：http://localhost:5000/api/2.0/mlflow/artifacts/list
+
+# ==============================================================================
+2.实验：
+2.1.创建实验名称：
+mlflow experiments create --experiment-name [name]
+mlflow experiments create --experiment-name Test_1
+
+2.2.运行实验：
+mlflow run [...] --experiment-name [name]
+mlflow run ./ --no-conda -P alpha=0.5 --experiment-name Test_1
+
+# ==============================================================================
+
+
+
+
+
+
+
+
+
+
+
+
+# ==============================================================================
