@@ -73,7 +73,7 @@ mlflow run ./ --no-conda -P alpha=0.5 --experiment-name Test_1 --run-name cyl
 3.运行一个commit id:（只支持Git）
 mlflow run git@github.com:caiyueliang/mlflow-example.git --no-conda -P alpha=0.5                            # 不会做git clone，只生成mlruns/
 
-mlflow run git@github.com:caiyueliang/mlflow-example.git --no-conda -P alpha=0.5 --experiment-name Test_1
+mlflow run git@github.com:caiyueliang/mlflow-example.git --no-conda -P alpha=0.5 --experiment-name Test_3
 mlflow run git@github.com:caiyueliang/mlflow-example.git --no-conda -P alpha=0.9 --experiment-name Test_1 -v 61139ef432cacb2f927fd7923e32de515467f3db
 
 # ==============================================================================

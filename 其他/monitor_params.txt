@@ -1,0 +1,35 @@
+monitor_params.py 模型监控json配置
+{
+	"project_id": 17,
+	"project_name": null,
+	"version_id": 4,
+	"version_name": "v4",
+	"problem_type": "classifier",
+	"category_columns": ["tag", "gender", "city", "is_overdue_user"],
+	"continuous_columns": ["age_g", "zmscore_g", "bscore_g", "td_score_g", "ivs3_score_g"],
+	"feature_monitor_is_vaild": true,
+	"model_psi_cut_points": [],
+	"model_monitor": {
+		"evaluator": ["auc", "precision_score", "recall_score", "ks_value"],
+		"threshold": 0.5,
+		"is_vaild": true
+	}
+}
+
+# ==========================================================================================================================
+{
+	"project_id": 3,
+	"project_name": "project_test",
+	"version_id": 1,
+	"version_name": "version_test",
+	"problem_type": "classifier",
+	"category_columns": ["None"],
+	"continuous_columns": ["None"],
+	"feature_monitor_is_vaild": true,
+	"model_psi_cut_points": [],
+	"model_monitor": {
+		"evaluator": ["auc"],
+		"threshold": 0.5,
+		"is_vaild": true
+	}
+}

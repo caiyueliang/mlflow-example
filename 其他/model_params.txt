@@ -1,0 +1,117 @@
+model_params.py 模型训练json配置
+{
+	"data_preprocessor": {
+	  // ============================================================================================================================================================
+		// 下面这部分与adjust_params重复
+		"seq": [
+				{
+					"processor_name": "outlier_detection",
+					"is_vaild": true,
+					"columns": ["tag", "gender", "city", "is_overdue_user", "age_g", "zmscore_g", "bscore_g", "td_score_g", "ivs3_score_g"]
+				}, {
+					"processor_name": "imputation",
+					"is_vaild": true,
+					"columns": ["tag", "gender", "city", "is_overdue_user", "age_g", "zmscore_g", "bscore_g", "td_score_g", "ivs3_score_g"]
+				}, {
+					"processor_name": "rescaling",
+					"is_vaild": true,
+					"columns": ["tag", "gender", "city", "is_overdue_user", "age_g", "zmscore_g", "bscore_g", "td_score_g", "ivs3_score_g"]
+				}, {
+					"processor_name": "feature_select",
+					"is_vaild": true,
+					"columns": ["tag", "gender", "city", "is_overdue_user", "age_g", "zmscore_g", "bscore_g", "td_score_g", "ivs3_score_g"]
+				}, {
+					"processor_name": "feature_cross",
+					"is_vaild": true,
+					"columns": ["tag", "gender", "city", "is_overdue_user", "age_g", "zmscore_g", "bscore_g", "td_score_g", "ivs3_score_g"]
+				}, {
+					"processor_name": "categorical_encoding",
+					"is_vaild": true,
+					"columns": ["tag", "gender", "city", "is_overdue_user"]
+				}, {
+					"processor_name": "balancing",
+					"is_vaild": true,
+					"columns": ["tag", "gender", "city", "is_overdue_user", "age_g", "zmscore_g", "bscore_g", "td_score_g", "ivs3_score_g"]
+				}
+		],
+		// ============================================================================================================================================================
+		// 下面这部分是自动调參生成，内容与上面的“seq”里面的内容一一对应， 存sql？
+		"process": [
+				{
+					"name": "outlier_detection",
+					"method": "outlier_detection",
+					"params": {
+						"low": 0.2,
+						"up": 0.8
+					}
+				}, {
+					"name": "imputation",
+					"method": "imputation",
+					"params": {
+						"strategy": "mean"
+					}
+				}, {
+					"name": "rescaling",
+					"method": "robust_scaler",
+					"params": {
+						"q_max": 0.8076140799995719,
+						"q_min": 0.23164954993231193
+					}
+				}, {
+					"name": "feature_select",
+					"method": "auc_feature_select",
+					"params": {}
+				}, {
+					"name": "feature_cross",
+					"method": "gbdt_feature_cross",
+					"params": {}
+				}, {
+					"name": "categorical_encoding",
+					"method": "no_encoding",
+					"params": {}
+				}, {
+					"name": "balancing",
+					"method": "balancing",
+					"params": {
+						"strategy": "weighting"
+					}
+				}
+		]
+	},
+	// ============================================================================================================================================================
+	// 下面这部分是自动调參生成， 存sql？
+	"feature_preprocessor": [{
+		"name": "preprocessor",
+		"method": "no_preprocessing",
+		"params": {}
+	}],
+	// ============================================================================================================================================================
+	// 下面这部分是自动调參生成， 存sql？
+	"model_preprocessor": [{
+		"name": "classifier",
+		"method": "xgradient_boosting",
+		"params": {
+			"base_score": 0.5,
+			"booster": "gbtree",
+			"colsample_bylevel": 0.7319236327758057,
+			"colsample_bytree": 0.2655575008407889,
+			"gamma": 0,
+			"learning_rate": 0.0062579173943804285,
+			"max_delta_step": 0,
+			"max_depth": 20,
+			"min_child_weight": 14,
+			"n_estimators": 512,
+			"reg_alpha": 6.044712517176859e-05,
+			"reg_lambda": 6.816829726268928e-07,
+			"scale_pos_weight": 1,
+			"subsample": 0.2370176709852766
+		}
+	}],
+	// ============================================================================================================================================================
+	"problem_type": "classifier",																																																// 与adjust_params重复
+	"exec_type": "train",																																																																	// 特有字段
+	"columns": ["tag", "gender", "city", "is_overdue_user", "age_g", "zmscore_g", "bscore_g", "td_score_g", "ivs3_score_g"],		// 与adjust_params重复
+	"target_columns": ["is_overdue"],																																														// 与adjust_params重复
+	"category_columns": ["tag", "gender", "city", "is_overdue_user"],																														// 与adjust_params重复
+	"continuous_columns": ["age_g", "zmscore_g", "bscore_g", "td_score_g", "ivs3_score_g"]																			// 与adjust_params重复
+}

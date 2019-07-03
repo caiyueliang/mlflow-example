@@ -1,0 +1,98 @@
+adjust_params.py 生成app参数json配置文件
+{
+	"project_id": 17,
+	"project_name": null,
+	"version_id": 4,
+	"version_name": "v4",
+	"problem_type": "classifier",
+	"data_processor": [{
+		"processor_name": "outlier_detection",
+		"is_vaild": true,
+		"columns": ["tag", "gender", "city", "is_overdue_user", "age_g", "zmscore_g", "bscore_g", "td_score_g", "ivs3_score_g"]
+	}, {
+		"processor_name": "imputation",
+		"is_vaild": true,
+		"columns": ["tag", "gender", "city", "is_overdue_user", "age_g", "zmscore_g", "bscore_g", "td_score_g", "ivs3_score_g"]
+	}, {
+		"processor_name": "rescaling",
+		"is_vaild": true,
+		"columns": ["tag", "gender", "city", "is_overdue_user", "age_g", "zmscore_g", "bscore_g", "td_score_g", "ivs3_score_g"]
+	}, {
+		"processor_name": "feature_select",
+		"is_vaild": true,
+		"columns": ["tag", "gender", "city", "is_overdue_user", "age_g", "zmscore_g", "bscore_g", "td_score_g", "ivs3_score_g"]
+	}, {
+		"processor_name": "feature_cross",
+		"is_vaild": true,
+		"columns": ["tag", "gender", "city", "is_overdue_user", "age_g", "zmscore_g", "bscore_g", "td_score_g", "ivs3_score_g"]
+	}, {
+		"processor_name": "categorical_encoding",
+		"is_vaild": true,
+		"columns": ["tag", "gender", "city", "is_overdue_user"]
+	}, {
+		"processor_name": "balancing",
+		"is_vaild": true,
+		"columns": ["tag", "gender", "city", "is_overdue_user", "age_g", "zmscore_g", "bscore_g", "td_score_g", "ivs3_score_g"]
+	}],
+	"include_estimators": ["xgradient_boosting"],
+	"include_processor": null,
+	"category_columns": ["tag", "gender", "city", "is_overdue_user"],
+	"continuous_columns": ["age_g", "zmscore_g", "bscore_g", "td_score_g", "ivs3_score_g"],
+	"target_columns": ["is_overdue"],
+	"exec_type": "adjust",
+	"columns": ["tag", "gender", "city", "is_overdue_user", "age_g", "zmscore_g", "bscore_g", "td_score_g", "ivs3_score_g"],
+	"per_run_time_limit": 18000,
+	"time_left_for_this_task": 43200,
+	"ml_memory_limit": 61440,
+	"eval_metric": "auc"
+}
+
+
+# ==========================================================================================================================
+{
+	"project_id": 3,
+	"project_name": "project_test",
+	"version_id": 1,
+	"version_name": "version_test",
+	"problem_type": "classifier",
+	"data_processor": [{
+		"processor_name": "outlier_detection",
+		"is_vaild": true,
+		"columns": ["None", "None"]
+	}, {
+		"processor_name": "imputation",
+		"is_vaild": true,
+		"columns": ["None", "None"]
+	}, {
+		"processor_name": "rescaling",
+		"is_vaild": true,
+		"columns": ["None", "None"]
+	}, {
+		"processor_name": "feature_select",
+		"is_vaild": true,
+		"columns": ["None", "None"]
+	}, {
+		"processor_name": "feature_cross",
+		"is_vaild": true,
+		"columns": ["None", "None"]
+	}, {
+		"processor_name": "categorical_encoding",
+		"is_vaild": true,
+		"columns": ["None"]
+	}, {
+		"processor_name": "balancing",
+		"is_vaild": true,
+		"columns": ["None", "None"]
+	}],
+	"include_estimators": ["None"],
+	"include_processor": ["None"],
+	"category_columns": ["None"],
+	"continuous_columns": ["None"],
+	"target_columns": ["label"],
+	"exec_type": "adjust",
+	"columns": ["None", "None"],
+	"per_run_time_limit": 3600,
+	"time_left_for_this_task": 86400,
+	"ml_memory_limit": 1024,
+	"eval_metric": "auc"
+}
