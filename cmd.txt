@@ -67,8 +67,10 @@ mlflow experiments create --experiment-name Test_1
 2.2.运行实验：
 mlflow run [...] --experiment-name [name]
 mlflow run ./ --no-conda -P alpha=0.5 --experiment-name Test_1
+mlflow run ./ --no-conda -P alpha=0.5 --experiment-name Test_1 --run-name cyl
 
-2.3.运行一个commit id:（只支持Git）
+# ==============================================================================
+3.运行一个commit id:（只支持Git）
 mlflow run git@github.com:caiyueliang/mlflow-example.git --no-conda -P alpha=0.5                            # 不会做git clone，只生成mlruns/
 
 mlflow run git@github.com:caiyueliang/mlflow-example.git --no-conda -P alpha=0.5 --experiment-name Test_1

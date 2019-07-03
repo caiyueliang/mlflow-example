@@ -20,6 +20,22 @@ def run_test():
             # mlflow.log_metrics(metrics)
 
 
+def run_test_1(l1, alpha):
+    with mlflow.start_run(run_id='00e2f575f9d84ad3b7f27ed106eecc80', experiment_id=2):
+        with mlflow.start_run(run_name='Test', experiment_id=2, nested=True):
+            parameters = {
+                'l1': str(l1),
+                'alpha': str(alpha),
+            }
+            # metrics = {
+            #     'MAE': [rand()],
+            #     'R2': [rand()],
+            #     'RMSE': [rand()],
+            # }
+            mlflow.log_params(parameters)
+            # mlflow.log_metrics(metrics)
+
+
 def run_main(alpha=0.5):
     parameters = {"alpha": alpha}
     submitted_run = mlflow.projects.run(uri="./", entry_point="main", parameters=parameters)
@@ -47,6 +63,7 @@ def run_train_1(alpha=0.5):
 
 
 if __name__ == '__main__':
-    run_test()
+    # run_test()
+    run_test_1(0.1, 0.1)
     # run_main(alpha=0.4)
     # run_train_1()
