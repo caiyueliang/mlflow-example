@@ -90,30 +90,34 @@ def run_develop_version(experiment_name, version_name, step_id=0, l=0.1, alpha=0
                 mlflow.log_params(parameters)
                 print('[run_develop_version][success]')
         else:
-            print('[run_develop_version][error] version_name not found: %s' % experiment_name)
+            print('[run_develop_version][error] version_name not found: %s' % version_name)
     else:
         print('[run_develop_version][error] experiment_name not found: %s' % experiment_name)
 
 
 # 运行一个离线|定时版本
-def run_offline_version(experiment_name, run_id_level_1, run_name, step_id=0, l=0.1, alpha=0.1):
+def run_offline_version(experiment_name, version_name, run_name, step_id=0, l=0.1, alpha=0.1):
     experiment = get_experiment(experiment_name)  # 通过experiment_name查找experiment
 
     # 执行对应的任务
     if experiment:
-        with mlflow.start_run(experiment_id=experiment.experiment_id, run_id=run_id_level_1):
-            with mlflow.start_run(experiment_id=experiment.experiment_id, run_name=run_name, nested=True):
-                if step_id == 0:
-                    parameters = {
-                        'l1': str(l),
-                        'alpha1': str(alpha),
-                    }
-                else:
-                    parameters = {
-                        'l2': str(l),
-                        'alpha2': str(alpha),
-                    }
-                mlflow.log_params(parameters)
+        run_id = get_run_id(experiment_id=experiment.experiment_id, version_name=version_name)
+        if run_id:
+            with mlflow.start_run(experiment_id=experiment.experiment_id, run_id=run_id):
+                with mlflow.start_run(experiment_id=experiment.experiment_id, run_name=run_name, nested=True):
+                    if step_id == 0:
+                        parameters = {
+                            'l1': str(l),
+                            'alpha1': str(alpha),
+                        }
+                    else:
+                        parameters = {
+                            'l2': str(l),
+                            'alpha2': str(alpha),
+                        }
+                    mlflow.log_params(parameters)
+        else:
+            print('[run_offline_version][error] version_name not found: %s' % version_name)
     else:
         print('[run_offline_version][error] experiment_name not found: %s' % experiment_name)
 
@@ -165,3 +169,5 @@ if __name__ == '__main__':
 
     # =======================================================
     # 运行一个离线|定时版本
+    # run_offline_version(experiment_name='CYL_1', version_name='version_1', run_name='offile_1', step_id=0, l=0.1, alpha=0.1)
+    run_offline_version(experiment_name='CYL_1', version_name='version_1', run_name='offile_2', step_id=0, l=0.2, alpha=0.2)
