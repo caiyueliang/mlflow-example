@@ -1,19 +1,19 @@
 monitor_params.py 模型监控json配置
 {
-	"project_id": 17,
-	"project_name": null,
-	"version_id": 4,
-	"version_name": "v4",
-	"problem_type": "classifier",
-	"category_columns": ["tag", "gender", "city", "is_overdue_user"],
-	"continuous_columns": ["age_g", "zmscore_g", "bscore_g", "td_score_g", "ivs3_score_g"],
-	"feature_monitor_is_vaild": true,
-	"model_psi_cut_points": [],
-	"model_monitor": {
-		"evaluator": ["auc", "precision_score", "recall_score", "ks_value"],
-		"threshold": 0.5,
-		"is_vaild": true
-	}
+  "project_id": 17,                                                                            	// 删除
+  "project_name": null,                                                                        	// 删除
+  "version_id": 4,                                                                            	// 删除
+  "version_name": "v4",                                                                        	// 删除
+  "problem_type": "classifier",                                                                	// 与adjust_params重复
+  "category_columns": ["tag", "gender", "city", "is_overdue_user"],                            	// 与adjust_params重复
+  "continuous_columns": ["age_g", "zmscore_g", "bscore_g", "td_score_g", "ivs3_score_g"],      	// 与adjust_params重复
+  "feature_monitor_is_vaild": true,                                                            	// 特有字段
+  "model_psi_cut_points": [],                                                                  	// 特有字段
+  "model_monitor": {                                                                          	// 特有字段
+    "evaluator": ["auc", "precision_score", "recall_score", "ks_value"],
+    "threshold": 0.5,
+    "is_vaild": true
+  }
 }
 
 # ==========================================================================================================================
