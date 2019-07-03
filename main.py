@@ -1,5 +1,9 @@
 import mlflow
 from mlflow.tracking import MlflowClient
+from mlflow.utils.mlflow_tags import MLFLOW_RUN_NAME
+
+from mlflow.entities import ViewType
+from mlflow.tracking import _get_store
 
 
 # 通过experiment_name查找experiment
@@ -11,16 +15,37 @@ def get_experiment(experiment_name):
     experiments = client.list_experiments()
     for experiment in experiments:
         if experiment.name == experiment_name:
-            print('[get_experiment] find experiment_name: %s; experiment_id: %d' %
-                  (experiment.name, experiment.experiment_id))
             find_experiment = experiment
             break
 
     return find_experiment
 
 
-def get_run_id(experiment, version_name):
-    run_id = ""
+def get_run_id(experiment_id, version_name, view='active_only'):    # ['active_only', 'deleted_only', 'all']
+    run_id = None
+
+    store = _get_store()
+    view_type = ViewType.from_string(view) if view else ViewType.ACTIVE_ONLY
+    runs = store.search_runs([experiment_id], None, view_type)
+    for run in runs:
+        tags = {k: v for k, v in run.data.tags.items()}
+        run_name = tags.get(MLFLOW_RUN_NAME, "")
+
+        if run_name == version_name:
+            run_id = run.info.run_id
+            break
+
+    # if experiment:
+    #     client = MlflowClient()
+    #     run_infos = client.list_run_infos(experiment.experiment_id)
+    #     for run in run_infos:
+    #         print(run)
+    #         tags = {k: v for k, v in run.data.tags.items()}
+    #         run_name = tags.get(MLFLOW_RUN_NAME, "")
+    #         if run_name == version_name:
+    #             run_id = run.run_id
+    #             break
+
     return run_id
 
 
@@ -28,7 +53,7 @@ def get_run_id(experiment, version_name):
 # 创建一个实验
 def create_experiment(experiment_name):
     experiment_id = mlflow.create_experiment(name=experiment_name, artifact_location=None)
-    print('[create_experiment][success] experiment_name: %s; experiment_id: %d' % (experiment_name, experiment_id))
+    print('[create_experiment][success] experiment_name: %s; experiment_id: %s' % (experiment_name, experiment_id))
 
 
 # 创建一个版本
@@ -49,7 +74,7 @@ def run_develop_version(experiment_name, version_name, step_id=0, l=0.1, alpha=0
 
     # 执行对应的任务
     if experiment:
-        run_id = get_run_id(experiment=experiment, version_name=version_name)
+        run_id = get_run_id(experiment_id=experiment.experiment_id, version_name=version_name)
         if run_id:
             with mlflow.start_run(experiment_id=experiment.experiment_id, run_id=run_id):
                 if step_id == 0:
@@ -65,7 +90,7 @@ def run_develop_version(experiment_name, version_name, step_id=0, l=0.1, alpha=0
                 mlflow.log_params(parameters)
                 print('[run_develop_version][success]')
         else:
-            
+            print('[run_develop_version][error] version_name not found: %s' % experiment_name)
     else:
         print('[run_develop_version][error] experiment_name not found: %s' % experiment_name)
 
@@ -76,23 +101,21 @@ def run_offline_version(experiment_name, run_id_level_1, run_name, step_id=0, l=
 
     # 执行对应的任务
     if experiment:
+        with mlflow.start_run(experiment_id=experiment.experiment_id, run_id=run_id_level_1):
+            with mlflow.start_run(experiment_id=experiment.experiment_id, run_name=run_name, nested=True):
+                if step_id == 0:
+                    parameters = {
+                        'l1': str(l),
+                        'alpha1': str(alpha),
+                    }
+                else:
+                    parameters = {
+                        'l2': str(l),
+                        'alpha2': str(alpha),
+                    }
+                mlflow.log_params(parameters)
     else:
         print('[run_offline_version][error] experiment_name not found: %s' % experiment_name)
-
-    experiment_id = mlflow.create_experiment(name=experiment_name, artifact_location=None)
-    with mlflow.start_run(experiment_id=experiment_id, run_id=run_id_level_1):
-        with mlflow.start_run(experiment_id=experiment_id, run_name=run_name, nested=True):
-            if step_id == 0:
-                parameters = {
-                    'l1': str(l),
-                    'alpha1': str(alpha),
-                }
-            else:
-                parameters = {
-                    'l2': str(l),
-                    'alpha2': str(alpha),
-                }
-            mlflow.log_params(parameters)
 
 
 def run_main(alpha=0.5):
@@ -124,7 +147,7 @@ def run_train_1(alpha=0.5):
 if __name__ == '__main__':
     # =======================================================
     # 创建一个实验
-    create_experiment(experiment_name='CYL_1')
+    # create_experiment(experiment_name='CYL_1')
     # create_experiment(experiment_name='CYL_2')
 
     # =======================================================
