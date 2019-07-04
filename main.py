@@ -115,6 +115,7 @@ def run_offline_version(experiment_name, version_name, run_name, step_id=0, l=0.
                             'l2': str(l),
                             'alpha2': str(alpha),
                         }
+                    mlflow.set_tag("tag", "cyl_tag")
                     mlflow.log_params(parameters)
         else:
             print('[run_offline_version][error] version_name not found: %s' % version_name)

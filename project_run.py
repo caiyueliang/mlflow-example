@@ -60,6 +60,13 @@ def run_train_1(alpha=0.5):
     print("[run_train_1] run_id ", run_id, run.data.params)
     # assert run.data.params == parameters
 
+    # loop_1_run_id = None
+    # loop_2_run_id = None
+    # with mlflow.start_run(run_name='loop-1') as run_1:
+    #     with mlflow.start_run(run_name='loop-2', nested=True) as run_2:
+    #         loop_1_run_id = run_1.info.run_id
+    #         loop_2_run_id = run_2.info.run_id
+
 
 if __name__ == '__main__':
     # run_test()
