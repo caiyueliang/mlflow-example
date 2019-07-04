@@ -3,20 +3,28 @@ from mlflow.tracking import MlflowClient
 from mlflow.utils.mlflow_tags import MLFLOW_RUN_NAME
 
 from mlflow.entities import ViewType
-from mlflow.tracking import _get_store
+import mlflow.tracking
+
+
+# # 通过experiment_name查找experiment
+# def get_experiment(experiment_name):
+#     find_experiment = None
+#
+#     # 获取实验列表，并查找实验名称对应的实验ID
+#     client = MlflowClient()
+#     experiments = client.list_experiments()
+#     for experiment in experiments:
+#         if experiment.name == experiment_name:
+#             find_experiment = experiment
+#             break
+#
+#     return find_experiment
 
 
 # 通过experiment_name查找experiment
 def get_experiment(experiment_name):
-    find_experiment = None
-
-    # 获取实验列表，并查找实验名称对应的实验ID
     client = MlflowClient()
-    experiments = client.list_experiments()
-    for experiment in experiments:
-        if experiment.name == experiment_name:
-            find_experiment = experiment
-            break
+    find_experiment = client.get_experiment_by_name(experiment_name)
 
     return find_experiment
 
@@ -24,9 +32,9 @@ def get_experiment(experiment_name):
 def get_run_id(experiment_id, version_name, view='active_only'):    # ['active_only', 'deleted_only', 'all']
     run_id = None
 
-    store = _get_store()
+    client = MlflowClient()
     view_type = ViewType.from_string(view) if view else ViewType.ACTIVE_ONLY
-    runs = store.search_runs([experiment_id], None, view_type)
+    runs = client.store.search_runs([experiment_id], None, view_type)
     for run in runs:
         tags = {k: v for k, v in run.data.tags.items()}
         run_name = tags.get(MLFLOW_RUN_NAME, "")
@@ -34,17 +42,6 @@ def get_run_id(experiment_id, version_name, view='active_only'):    # ['active_o
         if run_name == version_name:
             run_id = run.info.run_id
             break
-
-    # if experiment:
-    #     client = MlflowClient()
-    #     run_infos = client.list_run_infos(experiment.experiment_id)
-    #     for run in run_infos:
-    #         print(run)
-    #         tags = {k: v for k, v in run.data.tags.items()}
-    #         run_name = tags.get(MLFLOW_RUN_NAME, "")
-    #         if run_name == version_name:
-    #             run_id = run.run_id
-    #             break
 
     return run_id
 
@@ -159,6 +156,7 @@ if __name__ == '__main__':
     # 创建一个版本
     # create_version(experiment_name='CYL_1', version_name='version_1')
     # create_version(experiment_name='CYL_1', version_name='version_2')
+    # create_version(experiment_name='CYL_1', version_name='version_3')
 
     # =======================================================
     # 运行一个开发版本
@@ -170,5 +168,10 @@ if __name__ == '__main__':
 
     # =======================================================
     # 运行一个离线|定时版本
-    # run_offline_version(experiment_name='CYL_1', version_name='version_1', run_name='offile_1', step_id=0, l=0.1, alpha=0.1)
-    run_offline_version(experiment_name='CYL_1', version_name='version_1', run_name='offile_2', step_id=0, l=0.2, alpha=0.2)
+    # run_offline_version(experiment_name='CYL_1', version_name='version_1', run_name='offile_1',
+    #                     step_id=0, l=0.1, alpha=0.1)
+    # run_offline_version(experiment_name='CYL_1', version_name='version_1', run_name='offile_2',
+    #                     step_id=0, l=0.2, alpha=0.2)
+
+    run_offline_version(experiment_name='CYL_1', version_name='version_3', run_name='offile_1',
+                        step_id=0, l=0.1, alpha=0.1)
