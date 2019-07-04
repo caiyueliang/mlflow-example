@@ -1,6 +1,7 @@
 import mlflow
 import itertools
 from random import random as rand
+from mlflow.utils.environment import _mlflow_conda_env
 
 def run_test():
     for l1, alpha in itertools.product([0.75, 1], [0, 0.5]):

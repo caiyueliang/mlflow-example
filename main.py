@@ -87,13 +87,13 @@ class MlflowManager(object):
                 with mlflow.start_run(experiment_id=experiment.experiment_id, run_id=run_id):
                     if step_id == 0:
                         parameters = {
-                            'l1': str(l),
-                            'alpha1': str(alpha),
+                            'train_1': str(l),
+                            'train_2': str(alpha),
                         }
                     else:
                         parameters = {
-                            'l2': str(l),
-                            'alpha2': str(alpha),
+                            'adjust_1': str(l),
+                            'adjust_2': str(alpha),
                         }
                     mlflow.log_params(parameters)
                     print('[run_develop_version][success]')
@@ -114,13 +114,13 @@ class MlflowManager(object):
                     with mlflow.start_run(experiment_id=experiment.experiment_id, run_name=run_name, nested=True):
                         if step_id == 0:
                             parameters = {
-                                'l1': str(l),
-                                'alpha1': str(alpha),
+                                'train_1': str(l),
+                                'train_2': str(alpha),
                             }
                         else:
                             parameters = {
-                                'l2': str(l),
-                                'alpha2': str(alpha),
+                                'adjust_1': str(l),
+                                'adjust_2': str(alpha),
                             }
                         mlflow.set_tag("tag", "cyl_tag")
                         mlflow.log_params(parameters)
@@ -164,24 +164,53 @@ def run_train_1(alpha=0.5):
 
 if __name__ == '__main__':
     mlflow_manager = MlflowManager()
-    # =======================================================
-    # 创建一个实验
-    # mlflow_manager.create_experiment(experiment_name='CYL_1')
-    mlflow_manager.create_experiment(experiment_name='CYL_2')
+    # # =======================================================
+    # # 创建一个实验
+    # mlflow_manager.create_experiment(experiment_name='b_score')
+    # mlflow_manager.create_experiment(experiment_name='qd_score')
+    #
+    # # =======================================================
+    # # 创建一个版本
+    # mlflow_manager.create_version(experiment_name='b_score', version_name='v1.0.0')
+    # mlflow_manager.create_version(experiment_name='b_score', version_name='v2.0.0')
+    # mlflow_manager.create_version(experiment_name='b_score', version_name='v3.0.0')
+    #
+    # # =======================================================
+    # mlflow_manager.create_version(experiment_name='qd_score', version_name='v1.0.0_train')
+    # mlflow_manager.create_version(experiment_name='qd_score', version_name='v1.0.0_adjust')
+    # mlflow_manager.create_version(experiment_name='qd_score', version_name='v2.0.0_train')
+    # mlflow_manager.create_version(experiment_name='qd_score', version_name='v2.0.0_adjust')
+
+    # # =======================================================
+    # # 旧：开发版本在一级更新（刷新），定时任务二级更新（新增）, 自动调參和模型训练在一条记录里（自动调參不是每次都执行）
+    # mlflow_manager.run_develop_version(experiment_name='b_score', version_name='v1.0.0', step_id=0, l=0.1, alpha=0.1)
+    # mlflow_manager.run_develop_version(experiment_name='b_score', version_name='v1.0.0', step_id=1, l=0.9, alpha=0.9)
+    #
+    # mlflow_manager.run_offline_version(experiment_name='b_score', version_name='v1.0.0', run_name='offline_1',
+    #                                    step_id=0, l=0.1, alpha=0.1)
+    #
+    # mlflow_manager.run_offline_version(experiment_name='b_score', version_name='v1.0.0', run_name='offline_2',
+    #                                    step_id=1, l=0.2, alpha=0.8)
+    #
+    # mlflow_manager.run_offline_version(experiment_name='b_score', version_name='v1.0.0', run_name='offline_3',
+    #                                    step_id=0, l=0.5, alpha=0.5)
 
     # =======================================================
-    # 创建一个版本
-    mlflow_manager.create_version(experiment_name='CYL_2', version_name='version_1')
-    # create_version(experiment_name='CYL_1', version_name='version_2')
-    # create_version(experiment_name='CYL_1', version_name='version_3')
-
-    # =======================================================
-    # 运行一个开发版本
-    # run_develop_version(experiment_name='CYL_1', version_name='version_1', step_id=0, l=0.1, alpha=0.1)
-    # run_develop_version(experiment_name='CYL_1', version_name='version_1', step_id=1, l=0.9, alpha=0.9)
-
-    # run_develop_version(experiment_name='CYL_1', version_name='version_2', step_id=0, l=0.3, alpha=0.3)
-    # run_develop_version(experiment_name='CYL_1', version_name='version_2', step_id=1, l=0.9, alpha=0.9)
+    # 新：开发版本在二级更新（新增），定时任务二级更新（新增）, 自动调參和模型训练在一条记录里（自动调參不是每次都执行）
+    mlflow_manager.run_offline_version(experiment_name='b_score', version_name='v3.0.0', run_name='v3.0.1',
+                                       step_id=0, l=0.1, alpha=0.1)
+    mlflow_manager.run_offline_version(experiment_name='b_score', version_name='v3.0.0', run_name='v3.0.2',
+                                       step_id=1, l=0.2, alpha=0.2)
+    mlflow_manager.run_offline_version(experiment_name='b_score', version_name='v3.0.0', run_name='offline_1',
+                                       step_id=0, l=0.9, alpha=0.9)
+    mlflow_manager.run_offline_version(experiment_name='b_score', version_name='v3.0.0', run_name='offline_2',
+                                       step_id=0, l=0.4, alpha=0.1)
+    mlflow_manager.run_offline_version(experiment_name='b_score', version_name='v3.0.0', run_name='v3.0.3',
+                                       step_id=0, l=0.2, alpha=0.2)
+    mlflow_manager.run_offline_version(experiment_name='b_score', version_name='v3.0.0', run_name='offline_3',
+                                       step_id=0, l=0.4, alpha=0.1)
+    mlflow_manager.run_offline_version(experiment_name='b_score', version_name='v3.0.0', run_name='v3.0.4',
+                                       step_id=0, l=0.2, alpha=0.2)
 
     # =======================================================
     # 运行一个离线|定时版本
