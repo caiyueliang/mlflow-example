@@ -146,6 +146,12 @@ def run_train_1(alpha=0.5):
     # assert run.data.params == parameters
 
 
+# def run(uri, entry_point="main", version=None, parameters=None,
+#         experiment_name=None, experiment_id=None,
+#         backend=None, backend_config=None, use_conda=True,
+#         storage_dir=None, synchronous=True, run_id=None)
+
+
 if __name__ == '__main__':
     # =======================================================
     # 创建一个实验

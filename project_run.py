@@ -68,6 +68,12 @@ def run_train_1(alpha=0.5):
     #         loop_2_run_id = run_2.info.run_id
 
 
+# def run(uri, entry_point="main", version=None, parameters=None,
+#         experiment_name=None, experiment_id=None,
+#         backend=None, backend_config=None, use_conda=True,
+#         storage_dir=None, synchronous=True, run_id=None)
+
+
 if __name__ == '__main__':
     # run_test()
     run_test_1(0.1, 0.1)
