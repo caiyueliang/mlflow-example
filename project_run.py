@@ -17,6 +17,8 @@ def run_test():
             #     'RMSE': [rand()],
             # }
             mlflow.log_params(parameters)
+            mlflow.get_artifact_uri()
+            mlflow.get_tracking_uri()
             # mlflow.log_metrics(metrics)
 
 

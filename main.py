@@ -129,6 +129,11 @@ class MlflowManager(object):
         else:
             print('[run_offline_version][error] experiment_name not found: %s' % experiment_name)
 
+    def get_run(self, run_id='27f2872ffe3144b59200350a83ac11a5'):
+        run = self.client.get_run(run_id)
+        print(run)
+        print(run.data.params)
+
 
 def run_main(alpha=0.5):
     parameters = {"alpha": alpha}
@@ -195,22 +200,22 @@ if __name__ == '__main__':
     # mlflow_manager.run_offline_version(experiment_name='b_score', version_name='v1.0.0', run_name='offline_3',
     #                                    step_id=0, l=0.5, alpha=0.5)
 
-    # =======================================================
-    # 新：开发版本在二级更新（新增），定时任务二级更新（新增）, 自动调參和模型训练在一条记录里（自动调參不是每次都执行）
-    mlflow_manager.run_offline_version(experiment_name='b_score', version_name='v3.0.0', run_name='v3.0.1',
-                                       step_id=0, l=0.1, alpha=0.1)
-    mlflow_manager.run_offline_version(experiment_name='b_score', version_name='v3.0.0', run_name='v3.0.2',
-                                       step_id=1, l=0.2, alpha=0.2)
-    mlflow_manager.run_offline_version(experiment_name='b_score', version_name='v3.0.0', run_name='offline_1',
-                                       step_id=0, l=0.9, alpha=0.9)
-    mlflow_manager.run_offline_version(experiment_name='b_score', version_name='v3.0.0', run_name='offline_2',
-                                       step_id=0, l=0.4, alpha=0.1)
-    mlflow_manager.run_offline_version(experiment_name='b_score', version_name='v3.0.0', run_name='v3.0.3',
-                                       step_id=0, l=0.2, alpha=0.2)
-    mlflow_manager.run_offline_version(experiment_name='b_score', version_name='v3.0.0', run_name='offline_3',
-                                       step_id=0, l=0.4, alpha=0.1)
-    mlflow_manager.run_offline_version(experiment_name='b_score', version_name='v3.0.0', run_name='v3.0.4',
-                                       step_id=0, l=0.2, alpha=0.2)
+    # # =======================================================
+    # # 新：开发版本在二级更新（新增），定时任务二级更新（新增）, 自动调參和模型训练在一条记录里（自动调參不是每次都执行）
+    # mlflow_manager.run_offline_version(experiment_name='b_score', version_name='v3.0.0', run_name='v3.0.1',
+    #                                    step_id=0, l=0.1, alpha=0.1)
+    # mlflow_manager.run_offline_version(experiment_name='b_score', version_name='v3.0.0', run_name='v3.0.2',
+    #                                    step_id=1, l=0.2, alpha=0.2)
+    # mlflow_manager.run_offline_version(experiment_name='b_score', version_name='v3.0.0', run_name='offline_1',
+    #                                    step_id=0, l=0.9, alpha=0.9)
+    # mlflow_manager.run_offline_version(experiment_name='b_score', version_name='v3.0.0', run_name='offline_2',
+    #                                    step_id=0, l=0.4, alpha=0.1)
+    # mlflow_manager.run_offline_version(experiment_name='b_score', version_name='v3.0.0', run_name='v3.0.3',
+    #                                    step_id=0, l=0.2, alpha=0.2)
+    # mlflow_manager.run_offline_version(experiment_name='b_score', version_name='v3.0.0', run_name='offline_3',
+    #                                    step_id=0, l=0.4, alpha=0.1)
+    # mlflow_manager.run_offline_version(experiment_name='b_score', version_name='v3.0.0', run_name='v3.0.4',
+    #                                    step_id=0, l=0.2, alpha=0.2)
 
     # =======================================================
     # 运行一个离线|定时版本
@@ -221,3 +226,6 @@ if __name__ == '__main__':
 
     # run_offline_version(experiment_name='CYL_1', version_name='version_3', run_name='offile_1',
     #                     step_id=0, l=0.1, alpha=0.1)
+
+    # =======================================================
+    mlflow_manager.get_run()
