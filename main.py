@@ -77,7 +77,7 @@ class MlflowManager(object):
             return False
 
     # 运行一个开发版本
-    def run_develop_version(self, experiment_name, version_name, step_id=0, l=0.1, alpha=0.1):
+    def run_develop_version(self, experiment_name, version_name, adjust=False, p1=0.1, p2=0.1):
         experiment = self.client.get_experiment_by_name(experiment_name)
 
         # 执行对应的任务
@@ -85,15 +85,17 @@ class MlflowManager(object):
             run_id = self.get_run_id(experiment_id=experiment.experiment_id, version_name=version_name)
             if run_id:
                 with mlflow.start_run(experiment_id=experiment.experiment_id, run_id=run_id):
-                    if step_id == 0:
+                    if adjust is True:
                         parameters = {
-                            'train_1': str(l),
-                            'train_2': str(alpha),
+                            'adjust_1': str(p1 * 2),
+                            'adjust_2': str(p2 * 2),
+                            'train_1': str(p1),
+                            'train_2': str(p2),
                         }
                     else:
                         parameters = {
-                            'adjust_1': str(l),
-                            'adjust_2': str(alpha),
+                            'train_1': str(p1),
+                            'train_2': str(p2),
                         }
                     mlflow.log_params(parameters)
                     print('[run_develop_version][success]')
@@ -103,7 +105,7 @@ class MlflowManager(object):
             print('[run_develop_version][error] experiment_name not found: %s' % experiment_name)
 
     # 运行一个离线|定时版本
-    def run_offline_version(self, experiment_name, version_name, run_name, step_id=0, l=0.1, alpha=0.1):
+    def run_offline_version(self, experiment_name, version_name, run_name, adjust=False, p1=0.1, p2=0.1):
         experiment = self.client.get_experiment_by_name(experiment_name)
 
         # 执行对应的任务
@@ -112,15 +114,17 @@ class MlflowManager(object):
             if run_id:
                 with mlflow.start_run(experiment_id=experiment.experiment_id, run_id=run_id):
                     with mlflow.start_run(experiment_id=experiment.experiment_id, run_name=run_name, nested=True):
-                        if step_id == 0:
+                        if adjust is True:
                             parameters = {
-                                'train_1': str(l),
-                                'train_2': str(alpha),
+                                'adjust_1': str(p1 * 2),
+                                'adjust_2': str(p2 * 2),
+                                'train_1': str(p1),
+                                'train_2': str(p2),
                             }
                         else:
                             parameters = {
-                                'adjust_1': str(l),
-                                'adjust_2': str(alpha),
+                                'train_1': str(p1),
+                                'train_2': str(p2),
                             }
                         mlflow.set_tag("tag", "cyl_tag")
                         mlflow.log_params(parameters)
@@ -188,34 +192,34 @@ if __name__ == '__main__':
 
     # # =======================================================
     # # 旧：开发版本在一级更新（刷新），定时任务二级更新（新增）, 自动调參和模型训练在一条记录里（自动调參不是每次都执行）
-    # mlflow_manager.run_develop_version(experiment_name='b_score', version_name='v1.0.0', step_id=0, l=0.1, alpha=0.1)
-    # mlflow_manager.run_develop_version(experiment_name='b_score', version_name='v1.0.0', step_id=1, l=0.9, alpha=0.9)
+    # mlflow_manager.run_develop_version(experiment_name='b_score', version_name='v1.0.0', adjust=True, p1=0.1, p2=0.1)
+    # mlflow_manager.run_develop_version(experiment_name='b_score', version_name='v1.0.0', adjust=False, p1=0.9, p2=0.9)
     #
     # mlflow_manager.run_offline_version(experiment_name='b_score', version_name='v1.0.0', run_name='offline_1',
-    #                                    step_id=0, l=0.1, alpha=0.1)
+    #                                    adjust=True, p1=0.1, p2=0.1)
     #
     # mlflow_manager.run_offline_version(experiment_name='b_score', version_name='v1.0.0', run_name='offline_2',
-    #                                    step_id=1, l=0.2, alpha=0.8)
+    #                                    adjust=False, p1=0.2, p2=0.8)
     #
     # mlflow_manager.run_offline_version(experiment_name='b_score', version_name='v1.0.0', run_name='offline_3',
-    #                                    step_id=0, l=0.5, alpha=0.5)
+    #                                    adjust=True, p1=0.5, p2=0.5)
 
-    # # =======================================================
-    # # 新：开发版本在二级更新（新增），定时任务二级更新（新增）, 自动调參和模型训练在一条记录里（自动调參不是每次都执行）
-    # mlflow_manager.run_offline_version(experiment_name='b_score', version_name='v3.0.0', run_name='v3.0.1',
-    #                                    step_id=0, l=0.1, alpha=0.1)
-    # mlflow_manager.run_offline_version(experiment_name='b_score', version_name='v3.0.0', run_name='v3.0.2',
-    #                                    step_id=1, l=0.2, alpha=0.2)
-    # mlflow_manager.run_offline_version(experiment_name='b_score', version_name='v3.0.0', run_name='offline_1',
-    #                                    step_id=0, l=0.9, alpha=0.9)
-    # mlflow_manager.run_offline_version(experiment_name='b_score', version_name='v3.0.0', run_name='offline_2',
-    #                                    step_id=0, l=0.4, alpha=0.1)
-    # mlflow_manager.run_offline_version(experiment_name='b_score', version_name='v3.0.0', run_name='v3.0.3',
-    #                                    step_id=0, l=0.2, alpha=0.2)
-    # mlflow_manager.run_offline_version(experiment_name='b_score', version_name='v3.0.0', run_name='offline_3',
-    #                                    step_id=0, l=0.4, alpha=0.1)
-    # mlflow_manager.run_offline_version(experiment_name='b_score', version_name='v3.0.0', run_name='v3.0.4',
-    #                                    step_id=0, l=0.2, alpha=0.2)
+    # =======================================================
+    # 新：开发版本在二级更新（新增），定时任务二级更新（新增）, 自动调參和模型训练在一条记录里（自动调參不是每次都执行）
+    mlflow_manager.run_offline_version(experiment_name='b_score', version_name='v3.0.0', run_name='v3.0.1',
+                                       adjust=True, p1=0.1, p2=0.1)
+    mlflow_manager.run_offline_version(experiment_name='b_score', version_name='v3.0.0', run_name='v3.0.2',
+                                       adjust=False, p1=0.2, p2=0.2)
+    mlflow_manager.run_offline_version(experiment_name='b_score', version_name='v3.0.0', run_name='offline_1',
+                                       adjust=True, p1=0.9, p2=0.9)
+    mlflow_manager.run_offline_version(experiment_name='b_score', version_name='v3.0.0', run_name='offline_2',
+                                       adjust=False, p1=0.4, p2=0.1)
+    mlflow_manager.run_offline_version(experiment_name='b_score', version_name='v3.0.0', run_name='v3.0.3',
+                                       adjust=False, p1=0.2, p2=0.2)
+    mlflow_manager.run_offline_version(experiment_name='b_score', version_name='v3.0.0', run_name='offline_3',
+                                       adjust=True, p1=0.4, p2=0.1)
+    mlflow_manager.run_offline_version(experiment_name='b_score', version_name='v3.0.0', run_name='v3.0.4',
+                                       adjust=True, p1=0.2, p2=0.2)
 
     # =======================================================
     # 运行一个离线|定时版本
@@ -228,4 +232,4 @@ if __name__ == '__main__':
     #                     step_id=0, l=0.1, alpha=0.1)
 
     # =======================================================
-    mlflow_manager.get_run()
+    # mlflow_manager.get_run()
