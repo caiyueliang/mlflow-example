@@ -59,8 +59,8 @@ class MlflowManager(object):
             print('[create_experiment][error] experiment_name: %s is exist' % experiment_name)
             return False
 
-    # 初始化版本，返回run_id
-    # 函数逻辑：如果实验不存在，则返回None；如果版本不存在，则新建并返回run_id；如果版本存在，返回run_id
+    # 初始化版本，返回experiment_id和run_id
+    # 函数逻辑：如果实验不存在，则返回None；如果版本不存在，则新建并返回id；如果版本存在，返回id
     def init_version(self, experiment_name, version_name):
         experiment = self.client.get_experiment_by_name(experiment_name)
 
@@ -69,13 +69,13 @@ class MlflowManager(object):
             if not run_id:
                 run = mlflow.start_run(experiment_id=experiment.experiment_id, run_name=version_name)
                 print('[init_version] create version: %s in experiment: %s; ' % (experiment_name, version_name))
-                return run.info.run_id
+                return experiment.experiment_id, run.info.run_id
             else:
                 print('[init_version] version: %s is exist in experiment: %s' % (version_name, experiment_name))
-                return run_id
+                return experiment.experiment_id, run_id
         else:
             print('[init_version] the experiment does not exist: %s' % experiment_name)
-            return None
+            return None, None
 
     # 创建一个一级版本
     def create_version_level_1(self, experiment_name, version_name):
@@ -310,8 +310,8 @@ if __name__ == '__main__':
     # mlflow_manager.get_run()
 
     # =======================================================
-    # run_id = mlflow_manager.init_version(experiment_name='b_score', version_name='v3.0.0')
-    # print(run_id)
+    experiment_id, run_id = mlflow_manager.init_version(experiment_name='b_score', version_name='v3.0.0')
+    print(experiment_id, run_id)
     # run_id = mlflow_manager.init_version(experiment_name='b_score', version_name='v4.0.0')
     # print(run_id)
     # run_id = mlflow_manager.init_version(experiment_name='a_score', version_name='v3.0.0')
