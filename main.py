@@ -1,6 +1,6 @@
 import mlflow
 from mlflow.tracking import MlflowClient
-from mlflow.utils.mlflow_tags import MLFLOW_RUN_NAME
+import mlflow.utils.mlflow_tags as mlflow_tags
 
 from mlflow.entities import ViewType
 import mlflow.tracking
@@ -24,7 +24,7 @@ class MlflowManager(object):
         runs = self.client.store.search_runs([experiment_id], None, view_type)
         for run in runs:
             tags = {k: v for k, v in run.data.tags.items()}
-            run_name = tags.get(MLFLOW_RUN_NAME, "")
+            run_name = tags.get(mlflow_tags.MLFLOW_RUN_NAME, "")
 
             if run_name == version_name:
                 return True
@@ -39,13 +39,25 @@ class MlflowManager(object):
         runs = self.client.store.search_runs([experiment_id], None, view_type)
         for run in runs:
             tags = {k: v for k, v in run.data.tags.items()}
-            run_name = tags.get(MLFLOW_RUN_NAME, "")
+            run_name = tags.get(mlflow_tags.MLFLOW_RUN_NAME, "")
 
             if run_name == version_name:
                 run_id = run.info.run_id
                 break
 
         return run_id
+
+    # 获取某个实验中的某个版本的孩子个数
+    def get_child_count(self, experiment_id, version_id, view='active_only'):
+        count = 0
+        view_type = ViewType.from_string(view) if view else ViewType.ACTIVE_ONLY
+        runs = self.client.store.search_runs([experiment_id], None, view_type)
+        for run in runs:
+            tags = {k: v for k, v in run.data.tags.items()}
+            parent_run_id = tags.get(mlflow_tags.MLFLOW_PARENT_RUN_ID, "")
+            if parent_run_id == version_id:
+                count += 1
+        return count
 
     # =======================================================
     # 创建一个实验
@@ -59,20 +71,20 @@ class MlflowManager(object):
             print('[create_experiment][error] experiment_name: %s is exist' % experiment_name)
             return False
 
-    # 初始化版本，返回experiment_id和run_id
+    # 初始化版本，返回experiment_id和version_id
     # 函数逻辑：如果实验不存在，则返回None；如果版本不存在，则新建并返回id；如果版本存在，返回id
     def init_version(self, experiment_name, version_name):
         experiment = self.client.get_experiment_by_name(experiment_name)
 
         if experiment:
-            run_id = self.get_run_id(experiment_id=experiment.experiment_id, version_name=version_name)
-            if not run_id:
-                run = mlflow.start_run(experiment_id=experiment.experiment_id, run_name=version_name)
+            version_id = self.get_run_id(experiment_id=experiment.experiment_id, version_name=version_name)
+            if not version_id:
+                version_id = mlflow.start_run(experiment_id=experiment.experiment_id, run_name=version_name)
                 print('[init_version] create version: %s in experiment: %s; ' % (experiment_name, version_name))
-                return experiment.experiment_id, run.info.run_id
+                return experiment.experiment_id, version_id.info.run_id
             else:
                 print('[init_version] version: %s is exist in experiment: %s' % (version_name, experiment_name))
-                return experiment.experiment_id, run_id
+                return experiment.experiment_id, version_id
         else:
             print('[init_version] the experiment does not exist: %s' % experiment_name)
             return None, None
@@ -310,9 +322,14 @@ if __name__ == '__main__':
     # mlflow_manager.get_run()
 
     # =======================================================
-    experiment_id, run_id = mlflow_manager.init_version(experiment_name='b_score', version_name='v3.0.0')
-    print(experiment_id, run_id)
+    # experiment_id, run_id = mlflow_manager.init_version(experiment_name='b_score', version_name='v3.0.0')
+    # print(experiment_id, run_id)
     # run_id = mlflow_manager.init_version(experiment_name='b_score', version_name='v4.0.0')
     # print(run_id)
     # run_id = mlflow_manager.init_version(experiment_name='a_score', version_name='v3.0.0')
     # print(run_id)
+
+    count = mlflow_manager.get_child_count(experiment_id='3', version_id='959f8a720e4e46e4946b718e40b990df')
+    print(count)
+    count = mlflow_manager.get_child_count(experiment_id='3', version_id='c0f14bfc60e74f1c928e57f1d1d03aa7')
+    print(count)
