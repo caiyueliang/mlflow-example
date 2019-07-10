@@ -1,4 +1,5 @@
 import mlflow
+import threading
 from mlflow.tracking import MlflowClient
 import mlflow.utils.mlflow_tags as mlflow_tags
 
@@ -7,8 +8,29 @@ import mlflow.tracking
 
 
 class MlflowManager(object):
-    def __init__(self):
-        self.client = MlflowClient()
+    _instance_lock = threading.Lock()
+
+    def __init__(self, tracking_uri="file:./mlruns", artifact_location=None):
+        print('[MlflowManager] tracking_uri: %s' % tracking_uri)
+        self.artifact_location = artifact_location
+        self.tracking_uri = tracking_uri
+        self.client = MlflowClient(tracking_uri=self.tracking_uri)
+        mlflow.set_tracking_uri(uri=self.tracking_uri)
+
+    # 设计成单例模式
+    def __new__(cls, *args, **kwargs):
+        print('[MlflowManager] __new__ 1')
+        if not hasattr(MlflowManager, "_instance"):
+            print('[MlflowManager] __new__ 2')
+            with MlflowManager._instance_lock:
+                print('[MlflowManager] __new__ 3')
+                if not hasattr(MlflowManager, "_instance"):
+                    print('[MlflowManager] __new__ 4')
+                    MlflowManager._instance = object.__new__(cls)
+        return MlflowManager._instance
+
+    def log_param(self, run_id, key, value):
+        self.client.log_param(run_id, key, value)
 
     # 判断实验是否存在
     def is_experiment_exist(self, experiment_name):
@@ -250,7 +272,7 @@ def run_train_1(alpha=0.5):
 
 
 if __name__ == '__main__':
-    mlflow_manager = MlflowManager()
+    # mlflow_manager = MlflowManager()
     # # =======================================================
     # # 创建一个实验
     # mlflow_manager.create_experiment(experiment_name='b_score')
@@ -329,7 +351,7 @@ if __name__ == '__main__':
     # run_id = mlflow_manager.init_version(experiment_name='a_score', version_name='v3.0.0')
     # print(run_id)
 
-    count = mlflow_manager.get_child_count(experiment_id='3', version_id='959f8a720e4e46e4946b718e40b990df')
+    count = MlflowManager().get_child_count(experiment_id='3', version_id='959f8a720e4e46e4946b718e40b990df')
     print(count)
-    count = mlflow_manager.get_child_count(experiment_id='3', version_id='c0f14bfc60e74f1c928e57f1d1d03aa7')
+    count = MlflowManager().get_child_count(experiment_id='3', version_id='c0f14bfc60e74f1c928e57f1d1d03aa7')
     print(count)
