@@ -109,7 +109,7 @@ model_params.py 模型训练json配置
 	}],
 	// ============================================================================================================================================================
 	"problem_type": "classifier",																																																// 与adjust_params重复
-	"exec_type": "train",																																																																	// 特有字段,存sql
+	"exec_type": "train",																																																																	// 特有字段,存sql(删除)
 	"columns": ["tag", "gender", "city", "is_overdue_user", "age_g", "zmscore_g", "bscore_g", "td_score_g", "ivs3_score_g"],		// 与adjust_params重复
 	"target_columns": ["is_overdue"],																																														// 与adjust_params重复
 	"category_columns": ["tag", "gender", "city", "is_overdue_user"],																														// 与adjust_params重复

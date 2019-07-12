@@ -53,33 +53,85 @@ class MlflowManager(object):
 
         return False
 
-    # 通过experiment_id和version_name查找run_id
-    def get_run_id(self, experiment_id, version_name, view='active_only'):    # ['active_only', 'deleted_only', 'all']
-        run_id = None
-
+    # =======================================================
+    # 获取某个实验的某个主版本的所有子版本
+    def get_sub_versions(self, experiment_id, version_id, view='active_only'):
         view_type = ViewType.from_string(view) if view else ViewType.ACTIVE_ONLY
         runs = self.client.store.search_runs([experiment_id], None, view_type)
-        for run in runs:
-            tags = {k: v for k, v in run.data.tags.items()}
-            run_name = tags.get(mlflow_tags.MLFLOW_RUN_NAME, "")
-
-            if run_name == version_name:
-                run_id = run.info.run_id
-                break
-
-        return run_id
-
-    # 获取某个实验中的某个版本的孩子个数
-    def get_child_count(self, experiment_id, version_id, view='active_only'):
-        count = 0
-        view_type = ViewType.from_string(view) if view else ViewType.ACTIVE_ONLY
-        runs = self.client.store.search_runs([experiment_id], None, view_type)
+        sub_versions_list = []
         for run in runs:
             tags = {k: v for k, v in run.data.tags.items()}
             parent_run_id = tags.get(mlflow_tags.MLFLOW_PARENT_RUN_ID, "")
             if parent_run_id == version_id:
-                count += 1
-        return count
+                sub_versions_list.append(run)
+        return sub_versions_list
+
+    # 获取某个实验的某个主版本的子版本个数
+    def get_sub_versions_count(self, experiment_id, version_id, view='active_only'):
+        sub_versions_list = self.get_sub_versions(experiment_id, version_id, view)
+        return len(sub_versions_list)
+
+    # 判断子版本是不是主版本的子版本（孩子）
+    def is_sub_versions(self, experiment_id, version_id, sub_version_name, view='active_only'):
+        sub_versions_list = self.get_sub_versions(experiment_id, version_id, view)
+        for sub_version in sub_versions_list:
+            tags = {k: v for k, v in sub_version.data.tags.items()}
+            run_name = tags.get(mlflow_tags.MLFLOW_RUN_NAME, "")
+            if run_name == sub_version_name:
+                return True
+        return False
+
+    # 获取某个实验的某个主版本的某个子版本ID
+    def get_sub_version_id(self, experiment_id, version_id, sub_version_name, view='active_only'):
+        sub_versions_list = self.get_sub_versions(experiment_id, version_id, view)
+        for sub_version in sub_versions_list:
+            tags = {k: v for k, v in sub_version.data.tags.items()}
+            run_name = tags.get(mlflow_tags.MLFLOW_RUN_NAME, "")
+            if run_name == sub_version_name:
+                return sub_version.info.run_id
+        return None
+
+    # 自动生成一个子版本名称，格式如：V1.1, V1.2, V2.3
+    def generate_sub_version_name(self, experiment_id, version_id, version_name):
+        count = self.get_sub_versions_count(experiment_id=experiment_id, version_id=version_id)
+        sub_version_name = version_name + "." + str(count + 1)
+        return sub_version_name
+
+    # =======================================================
+    # 获取某个实验中，所有主版本
+    def get_major_versions(self, experiment_id, view='active_only'):
+        view_type = ViewType.from_string(view) if view else ViewType.ACTIVE_ONLY
+        runs = self.client.store.search_runs([experiment_id], None, view_type)
+        major_versions_list = []
+        for run in runs:
+            tags = {k: v for k, v in run.data.tags.items()}
+            parent_run_id = tags.get(mlflow_tags.MLFLOW_PARENT_RUN_ID, "")
+            if parent_run_id == "":
+                print(tags.get(mlflow_tags.MLFLOW_RUN_NAME, ""))
+                major_versions_list.append(run)
+        return major_versions_list
+
+    # 获取某个实验中，主版本个数
+    def get_major_versions_count(self, experiment_id, view='active_only'):
+        major_versions_list = self.get_major_versions(experiment_id, view)
+        return len(major_versions_list)
+
+    # 通过experiment_id和version_name查找主版本ID
+    # view可选值: 'active_only', 'deleted_only', 'all'
+    def get_major_version_id(self, experiment_id, version_name, view='active_only'):
+        major_versions_list = self.get_major_versions(experiment_id, view)
+        for major_version in major_versions_list:
+            tags = {k: v for k, v in major_version.data.tags.items()}
+            run_name = tags.get(mlflow_tags.MLFLOW_RUN_NAME, "")
+            if run_name == version_name:
+                return major_version.info.run_id
+        return None
+
+    # 自动生成一个主版本名称，格式如：V1, V2, V3
+    def generate_major_version_name(self, experiment_id):
+        count = self.get_major_versions_count(experiment_id=experiment_id)
+        major_version_name = "V" + str(count + 1)
+        return major_version_name
 
     # =======================================================
     # 创建一个实验
@@ -93,176 +145,34 @@ class MlflowManager(object):
             print('[create_experiment][error] experiment_name: %s is exist' % experiment_name)
             return False
 
-    # 初始化版本，返回experiment_id和version_id
-    # 函数逻辑：如果实验不存在，则返回None；如果版本不存在，则新建并返回id；如果版本存在，返回id
-    def init_version(self, experiment_name, version_name):
-        experiment = self.client.get_experiment_by_name(experiment_name)
-
-        if experiment:
-            version_id = self.get_run_id(experiment_id=experiment.experiment_id, version_name=version_name)
-            if not version_id:
-                version_id = mlflow.start_run(experiment_id=experiment.experiment_id, run_name=version_name)
-                print('[init_version] create version: %s in experiment: %s; ' % (experiment_name, version_name))
-                return experiment.experiment_id, version_id.info.run_id
-            else:
-                print('[init_version] version: %s is exist in experiment: %s' % (version_name, experiment_name))
-                return experiment.experiment_id, version_id
-        else:
-            print('[init_version] the experiment does not exist: %s' % experiment_name)
-            return None, None
-
-    # 创建一个一级版本
-    def create_version_level_1(self, experiment_name, version_name):
-        experiment = self.client.get_experiment_by_name(experiment_name)
-
-        if experiment:
-            if not self.is_version_name_exist(experiment_id=experiment.experiment_id, version_name=version_name):
-                with mlflow.start_run(experiment_id=experiment.experiment_id, run_name=version_name):
-                    print('[create_version][success] experiment_name: %s; version_name: %s' %
-                          (experiment_name, version_name))
-                    return True
-            else:
-                print('[create_version][error] version_name: %s is exist in %s' % (version_name, experiment_name))
-                return False
-        else:
-            print('[create_version][error] experiment_name: %s is not exist' % experiment_name)
-            return False
-
-    # 创建一个二级版本
-    def create_version_level_2(self, experiment_name, version_name_1, version_name_2):
-        experiment = self.client.get_experiment_by_name(experiment_name)
-
-        if experiment:
-            if self.is_version_name_exist(experiment_id=experiment.experiment_id, version_name=version_name_1):
-                run_id = self.get_run_id(experiment_id=experiment.experiment_id, version_name=version_name_1)
-                if run_id:
-                    with mlflow.start_run(experiment_id=experiment.experiment_id, run_id=run_id):
-                        with mlflow.start_run(experiment_id=experiment.experiment_id, run_name=version_name_2, nested=True):
-                            print('[success] experiment: %s; version: %s' % (experiment_name, version_name_2))
-        else:
-            print('[create_version][error] experiment_name: %s is not exist' % experiment_name)
-            return False
-
-    # 运行一个开发版本
-    def run_develop_version(self, experiment_name, version_name, adjust=False, p1=0.1, p2=0.1):
-        experiment = self.client.get_experiment_by_name(experiment_name)
-
-        # 执行对应的任务
-        if experiment:
-            run_id = self.get_run_id(experiment_id=experiment.experiment_id, version_name=version_name)
-            if run_id:
-                with mlflow.start_run(experiment_id=experiment.experiment_id, run_id=run_id):
-                    if adjust is True:
-                        parameters = {
-                            'adjust_1': str(p1 * 2),
-                            'adjust_2': str(p2 * 2),
-                            'train_1': str(p1),
-                            'train_2': str(p2),
-                        }
-                    else:
-                        parameters = {
-                            'train_1': str(p1),
-                            'train_2': str(p2),
-                        }
-                    mlflow.log_params(parameters)
-                    print('[run_develop_version][success]')
-            else:
-                print('[run_develop_version][error] version_name not found: %s' % version_name)
-        else:
-            print('[run_develop_version][error] experiment_name not found: %s' % experiment_name)
-
-    # 运行一个离线|定时版本
-    def run_offline_version(self, experiment_name, version_name, run_name, adjust=False, p1=0.1, p2=0.1):
-        experiment = self.client.get_experiment_by_name(experiment_name)
-
-        # 执行对应的任务
-        if experiment:
-            run_id = self.get_run_id(experiment_id=experiment.experiment_id, version_name=version_name)
-            if run_id:
-                with mlflow.start_run(experiment_id=experiment.experiment_id, run_id=run_id, nested=True):
-                    with mlflow.start_run(experiment_id=experiment.experiment_id, run_name=run_name, nested=True):
-                        if adjust is True:
-                            parameters = {
-                                'adjust_1': str(p1 * 2),
-                                'adjust_2': str(p2 * 2),
-                                'train_1': str(p1),
-                                'train_2': str(p2),
-                            }
-                        else:
-                            parameters = {
-                                'train_1': str(p1),
-                                'train_2': str(p2),
-                            }
-                        mlflow.set_tag("tag", "cyl_tag")
-                        mlflow.log_params(parameters)
-            else:
-                print('[run_offline_version][error] version_name not found: %s' % version_name)
-        else:
-            print('[run_offline_version][error] experiment_name not found: %s' % experiment_name)
-
-    def run_offline_version_2(self, experiment_name, version_name_1, version_name_2, run_name, adjust=False, p1=0.1, p2=0.1):
-        experiment = self.client.get_experiment_by_name(experiment_name)
-
-        # 执行对应的任务
-        if experiment:
-            run_id_1 = self.get_run_id(experiment_id=experiment.experiment_id, version_name=version_name_1)
-            if run_id_1:
-                with mlflow.start_run(experiment_id=experiment.experiment_id, run_id=run_id_1, nested=False):
-                    run_id_2 = self.get_run_id(experiment_id=experiment.experiment_id, version_name=version_name_2)
-                    if run_id_2:
-                        with mlflow.start_run(experiment_id=experiment.experiment_id, run_id=run_id_2, nested=True):
-                            with mlflow.start_run(experiment_id=experiment.experiment_id, run_name=run_name, nested=True):
-                                if adjust is True:
-                                    parameters = {
-                                        'adjust_1': str(p1 * 2),
-                                        'adjust_2': str(p2 * 2),
-                                        'train_1': str(p1),
-                                        'train_2': str(p2),
-                                    }
-                                else:
-                                    parameters = {
-                                        'train_1': str(p1),
-                                        'train_2': str(p2),
-                                    }
-                                mlflow.set_tag("tag", "cyl_tag")
-                                mlflow.log_params(parameters)
-                    else:
-                        print('[run_offline_version][error] version_name not found: %s' % version_name_2)
-            else:
-                print('[run_offline_version][error] version_name not found: %s' % version_name_1)
-        else:
-            print('[run_offline_version][error] experiment_name not found: %s' % experiment_name)
-
     def get_run(self, run_id='27f2872ffe3144b59200350a83ac11a5'):
         run = self.client.get_run(run_id)
         print(run)
         print(run.data.params)
 
 
-def run_main(alpha=0.5):
-    parameters = {"alpha": alpha}
-    submitted_run = mlflow.projects.run(uri="./", entry_point="main", parameters=parameters)
-    run_id = submitted_run.run_id
-    mlflow_service = mlflow.tracking.MlflowClient()
-    # run_infos = mlflow_service.list_run_infos(
-    #     experiment_id=file_store.FileStore.DEFAULT_EXPERIMENT_ID,
-    #     run_view_type=ViewType.ACTIVE_ONLY)
-    run = mlflow_service.get_run(run_id)
-    print("[run_main] run_id ", run_id, run.data.params)
-    # assert run.data.params == parameters
-
-
-def run_train_1(alpha=0.5):
-    parameters = {"alpha": alpha}
-    submitted_run = mlflow.projects.run(uri="./", entry_point="train_1", parameters=parameters)
-    run_id = submitted_run.run_id
-    mlflow_service = mlflow.tracking.MlflowClient()
-    # run_infos = mlflow_service.list_run_infos(
-    #     experiment_id=file_store.FileStore.DEFAULT_EXPERIMENT_ID,
-    #     run_view_type=ViewType.ACTIVE_ONLY)
-    run = mlflow_service.get_run(run_id)
-    print("[run_train_1] run_id ", run_id, run.data.params)
-    # assert run.data.params == parameters
+# def run_main(alpha=0.5):
+#     parameters = {"alpha": alpha}
+#     submitted_run = mlflow.projects.run(uri="./", entry_point="main", parameters=parameters)
+#     run_id = submitted_run.run_id
+#     mlflow_service = mlflow.tracking.MlflowClient()
+#     # run_infos = mlflow_service.list_run_infos(
+#     #     experiment_id=file_store.FileStore.DEFAULT_EXPERIMENT_ID,
+#     #     run_view_type=ViewType.ACTIVE_ONLY)
+#     run = mlflow_service.get_run(run_id)
+#     print("[run_main] run_id ", run_id, run.data.params)
+#
+#
+# def run_train_1(alpha=0.5):
+#     parameters = {"alpha": alpha}
+#     submitted_run = mlflow.projects.run(uri="./", entry_point="train_1", parameters=parameters)
+#     run_id = submitted_run.run_id
+#     mlflow_service = mlflow.tracking.MlflowClient()
+#     # run_infos = mlflow_service.list_run_infos(
+#     #     experiment_id=file_store.FileStore.DEFAULT_EXPERIMENT_ID,
+#     #     run_view_type=ViewType.ACTIVE_ONLY)
+#     run = mlflow_service.get_run(run_id)
+#     print("[run_train_1] run_id ", run_id, run.data.params)
 
 
 # def run(uri, entry_point="main", version=None, parameters=None,
@@ -351,7 +261,11 @@ if __name__ == '__main__':
     # run_id = mlflow_manager.init_version(experiment_name='a_score', version_name='v3.0.0')
     # print(run_id)
 
-    count = MlflowManager().get_child_count(experiment_id='3', version_id='959f8a720e4e46e4946b718e40b990df')
+    count = MlflowManager().get_sub_versions_count(experiment_id='3', version_id='959f8a720e4e46e4946b718e40b990df')
     print(count)
-    count = MlflowManager().get_child_count(experiment_id='3', version_id='c0f14bfc60e74f1c928e57f1d1d03aa7')
+    count = MlflowManager().get_sub_versions_count(experiment_id='3', version_id='c0f14bfc60e74f1c928e57f1d1d03aa7')
+    print(count)
+    count = MlflowManager().get_major_versions_count(experiment_id='3')
+    print(count)
+    count = MlflowManager().get_major_versions_count(experiment_id='4')
     print(count)
