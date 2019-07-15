@@ -174,8 +174,7 @@ class MlflowManager(object):
                     print('[run_major_version_new] start experiment: %s major_version: %s' %
                           (experiment_name, major_version_name))
                     # 运行函数
-                    func(experiment_name=experiment_name, experiment_id=experiment_id,
-                         version_name=major_version_name, version_id=run.info.run_id, args=args)
+                    func(args)
                 mlflow.end_run()
             else:
                 print('[run_major_version_new][error] experiment not found: %s' % experiment_name)
@@ -198,8 +197,7 @@ class MlflowManager(object):
                             '[run_minor_version_new] start experiment: %s major_version: %s minor_version_name: %s' %
                             (experiment_name, version_name, minor_version_name))
                         # 运行函数
-                        func(experiment_name=experiment_name, experiment_id=experiment_id,
-                             version_name=minor_version_name, version_id=run.info.run_id, args=args)
+                        func(args)
                     mlflow.end_run()
             else:
                 print('[run_minor_version_new][error] major_version not found: %s' % version_name)
