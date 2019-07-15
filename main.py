@@ -10,12 +10,8 @@ import mlflow.tracking
 class MlflowManager(object):
     _instance_lock = threading.Lock()
 
-    def __init__(self, tracking_uri="file:./mlruns", artifact_location=None):
-        print('[MlflowManager] tracking_uri: %s' % tracking_uri)
-        self.artifact_location = artifact_location
-        self.tracking_uri = tracking_uri
-        self.client = MlflowClient(tracking_uri=self.tracking_uri)
-        mlflow.set_tracking_uri(uri=self.tracking_uri)
+    def __init__(self):
+        pass
 
     # 设计成单例模式
     def __new__(cls, *args, **kwargs):
@@ -27,8 +23,22 @@ class MlflowManager(object):
                 if not hasattr(MlflowManager, "_instance"):
                     print('[MlflowManager] __new__ 4')
                     MlflowManager._instance = object.__new__(cls)
+                    MlflowManager._instance.__init()                # 初始化
         return MlflowManager._instance
 
+    # 私有初始化函数
+    def __init(self):
+        tracking_uri = "file:./mlruns"
+        artifact_location = None
+
+        print('[MlflowManager] init start: tracking_uri: %s' % tracking_uri)
+        self.artifact_location = artifact_location
+        self.tracking_uri = tracking_uri
+        self.client = MlflowClient(tracking_uri=self.tracking_uri)
+        mlflow.set_tracking_uri(uri=self.tracking_uri)
+        print('[MlflowManager] init end ...')
+
+    # =========================================================================
     def log_param(self, run_id, key, value):
         self.client.log_param(run_id, key, value)
 
