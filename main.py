@@ -13,8 +13,8 @@ class MlflowManager(object):
 
     def __init__(self):
         if self._init_flag is False:
-            # tracking_uri = "file:./mlruns"
-            tracking_uri = "mysql://test:test@10.117.61.106:3306/qdmlflow?charset=utf8"
+            tracking_uri = "file:./mlruns"
+            # tracking_uri = "mysql://test:test@10.117.61.106:3306/qdmlflow?charset=utf8"
             artifact_location = None
 
             print('[MlflowManager] init start: tracking_uri: %s' % tracking_uri)
@@ -143,6 +143,46 @@ class MlflowManager(object):
             return major_version_name
 
     # =======================================================
+    def get_versions(self, experiment_id, view='active_only'):
+        view_type = ViewType.from_string(view) if view else ViewType.ACTIVE_ONLY
+        runs = self.client.store.search_runs([experiment_id], None, view_type)
+        return runs
+
+    # 通过experiment_id和version_name查找版本ID，不区分主版本或子版本
+    def get_version_id(self, experiment_id, version_name, view='active_only'):
+        runs = self.get_versions(experiment_id, view)
+        for run in runs:
+            tags = {k: v for k, v in run.data.tags.items()}
+            run_name = tags.get(mlflow_tags.MLFLOW_RUN_NAME, "")
+            if run_name == version_name:
+                return run.info.run_id
+        return None
+
+    # 获取最优的版本
+    def get_best_version(self, experiment_name, metrics='rmse'):
+        experiment = self.client.get_experiment_by_name(experiment_name)
+        if experiment:
+            experiment_id = experiment.experiment_id
+            best_version_name = None
+            best_version_id = None
+            best_value = 0.0
+
+            version_list = self.get_versions(experiment_id)
+            print(len(version_list))
+            for version in version_list:
+                if metrics in version.data.metrics.keys():
+                    print(version.data.metrics[metrics])
+                    if version.data.metrics[metrics] > best_value:
+                        best_value = version.data.metrics[metrics]
+                        tags = {k: v for k, v in version.data.tags.items()}
+                        best_version_name = tags.get(mlflow_tags.MLFLOW_RUN_NAME, "")
+                        best_version_id = version.info.run_id
+            return best_version_name, best_version_id
+        else:
+            print('[get_best_version][error] experiment not found: %s' % experiment_name)
+            return None, None
+
+    # =======================================================
     # 创建一个实验
     def create_experiment(self, experiment_name):
         if not self.is_experiment_exist(experiment_name):
@@ -242,35 +282,36 @@ def log_test(a=0.5):
 
 
 if __name__ == '__main__':
-    # mlflow_manager = MlflowManager()
+
+    name, id = MlflowManager().get_best_version(experiment_name='Test_1')
+    print(name, id)
     # # =======================================================
     # # 创建一个实验
-    MlflowManager().create_experiment(experiment_name='b_score_test')
-    # mlflow_manager.create_experiment(experiment_name='qd_score')
+    # MlflowManager().create_experiment(experiment_name='b_score_test')
+    # MlflowManager().create_experiment(experiment_name='qd_score')
+    # #
+    # # # =======================================================
+    # # # 创建一个版本
+    # MlflowManager().create_and_run_major_version(experiment_name='b_score_test', func=log_test, args=0.4)
+    # MlflowManager().create_and_run_major_version(experiment_name='b_score_test', func=log_test, args=0.8)
+    # MlflowManager().create_and_run_major_version(experiment_name='b_score_test', func=log_test, args=0.9)
+    # #
+    # # # =======================================================
+    # MlflowManager().create_and_run_minor_version(experiment_name='b_score_test', version_name="1", func=log_test, args=0.9)
+    # MlflowManager().create_and_run_minor_version(experiment_name='b_score_test', version_name="1", func=log_test,
+    #                                              args=0.8)
     #
-    # # =======================================================
-    # # 创建一个版本
-    MlflowManager().create_and_run_major_version(experiment_name='b_score_test', func=log_test, args=0.4)
-    MlflowManager().create_and_run_major_version(experiment_name='b_score_test', func=log_test, args=0.8)
-    MlflowManager().create_and_run_major_version(experiment_name='b_score_test', func=log_test, args=0.9)
-    # mlflow_manager.create_version(experiment_name='b_score_test', version_name='2')
-    # mlflow_manager.create_version(experiment_name='b_score_test', version_name='3')
+    # MlflowManager().create_and_run_minor_version(experiment_name='b_score_test', version_name="2", func=log_test,
+    #                                              args=0.5)
     #
-    # # =======================================================
-    MlflowManager().create_and_run_minor_version(experiment_name='b_score_test', version_name="1", func=log_test, args=0.9)
-    MlflowManager().create_and_run_minor_version(experiment_name='b_score_test', version_name="1", func=log_test,
-                                                 args=0.8)
+    # MlflowManager().create_and_run_minor_version(experiment_name='b_score_test', version_name="2", func=log_test,
+    #                                              args=0.4)
+    # MlflowManager().create_and_run_minor_version(experiment_name='b_score_test', version_name="2", func=log_test,
+    #                                              args=0.7)
+    #
+    # MlflowManager().create_and_run_minor_version(experiment_name='b_score_test', version_name="3", func=log_test,
+    #                                              args=0.9)
 
-    MlflowManager().create_and_run_minor_version(experiment_name='b_score_test', version_name="2", func=log_test,
-                                                 args=0.5)
-
-    MlflowManager().create_and_run_minor_version(experiment_name='b_score_test', version_name="2", func=log_test,
-                                                 args=0.4)
-    MlflowManager().create_and_run_minor_version(experiment_name='b_score_test', version_name="2", func=log_test,
-                                                 args=0.7)
-
-    MlflowManager().create_and_run_minor_version(experiment_name='b_score_test', version_name="3", func=log_test,
-                                                 args=0.9)
     # mlflow_manager.create_version(experiment_name='qd_score', version_name='v1.0.0_train')
     # mlflow_manager.create_version(experiment_name='qd_score', version_name='v1.0.0_adjust')
     # mlflow_manager.create_version(experiment_name='qd_score', version_name='v2.0.0_train')
