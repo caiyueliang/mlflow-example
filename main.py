@@ -5,6 +5,8 @@ import mlflow.utils.mlflow_tags as mlflow_tags
 
 from mlflow.entities import ViewType
 import mlflow.tracking
+import json
+import traceback
 
 
 class MlflowManager(object):
@@ -251,40 +253,64 @@ def log_test(a=0.5):
     mlflow.log_param('alpha_1', 0.1)
     mlflow.log_param('alpha_2', 0.2)
     mlflow.log_metric('mse', a)
-# def run_main(alpha=0.5):
-#     parameters = {"alpha": alpha}
-#     submitted_run = mlflow.projects.run(uri="./", entry_point="main", parameters=parameters)
-#     run_id = submitted_run.run_id
-#     mlflow_service = mlflow.tracking.MlflowClient()
-#     # run_infos = mlflow_service.list_run_infos(
-#     #     experiment_id=file_store.FileStore.DEFAULT_EXPERIMENT_ID,
-#     #     run_view_type=ViewType.ACTIVE_ONLY)
-#     run = mlflow_service.get_run(run_id)
-#     print("[run_main] run_id ", run_id, run.data.params)
-#
-#
-# def run_train_1(alpha=0.5):
-#     parameters = {"alpha": alpha}
-#     submitted_run = mlflow.projects.run(uri="./", entry_point="train_1", parameters=parameters)
-#     run_id = submitted_run.run_id
-#     mlflow_service = mlflow.tracking.MlflowClient()
-#     # run_infos = mlflow_service.list_run_infos(
-#     #     experiment_id=file_store.FileStore.DEFAULT_EXPERIMENT_ID,
-#     #     run_view_type=ViewType.ACTIVE_ONLY)
-#     run = mlflow_service.get_run(run_id)
-#     print("[run_train_1] run_id ", run_id, run.data.params)
 
 
-# def run(uri, entry_point="main", version=None, parameters=None,
-#         experiment_name=None, experiment_id=None,
-#         backend=None, backend_config=None, use_conda=True,
-#         storage_dir=None, synchronous=True, run_id=None)
+# ======================================================================================================================
+# 递归替换json文本
+def replace_json_text(base_json, replace_json):
+    if isinstance(base_json, dict) and isinstance(replace_json, dict):
+        for key in base_json:
+            # print('[replace_json]', key, replace_json.keys())
+            if key in replace_json.keys():
+                if not isinstance(base_json[key], dict) and not isinstance(base_json[key], list):
+                    if base_json[key] != replace_json[key]:
+                        print("[replace_json] key:%s  value:%s new_value:%s" % (key, base_json[key], replace_json[key]))
+                        base_json[key] = replace_json[key]
+                replace_json_text(base_json[key], replace_json[key])
+    elif isinstance(base_json, list) and isinstance(replace_json, list):
+        for base_item in base_json:
+            for replace_item in replace_json:
+                print('[replace_json] ', replace_item)
+                replace_json_text(base_item, replace_item)
+
+
+# 替换配置文件中的某些字段
+def replace_file(params_file, replace_params_file):
+    try:
+        print('[replace_file] %s' % params_file)
+        print('[replace_file] %s' % replace_params_file)
+        with open(params_file, 'r') as f:
+            base_params = f.read()
+            base_params = json.loads(base_params)
+
+        with open(replace_params_file, 'r') as f:
+            replace_params = f.read()
+            replace_params = json.loads(replace_params)
+
+        print('[replace_file] base_params old %s' % base_params)
+        print('[replace_file] replace_params %s' % replace_params)
+        replace_json_text(base_params, replace_params)
+        print('[replace_file] base_params new %s' % base_params)
+
+        # 替换后的值重新写入 params_file
+        # with open(params_file, 'w') as f:
+        #     base_params = json.dumps(base_params)
+        #     f.write(base_params)
+    except Exception as e:
+        traceback.print_exc()
+        content = '[replace_file][error] {}'.format(e)
+        print(content)
+        exit(-1)
+
+    return
 
 
 if __name__ == '__main__':
+    replace_file(params_file='/Users/qudian/qudian-ml/qdmlflow/experiments_config/1/conf/model_params.conf',
+                 replace_params_file='/Users/qudian/qudian-ml/qdmlflow/bin/params_file.json')
 
-    name, id = MlflowManager().get_best_version(experiment_name='Test_1')
-    print(name, id)
+    # name, id = MlflowManager().get_best_version(experiment_name='Test_1')
+    # print(name, id)
     # # =======================================================
     # # 创建一个实验
     # MlflowManager().create_experiment(experiment_name='b_score_test')
@@ -297,7 +323,8 @@ if __name__ == '__main__':
     # MlflowManager().create_and_run_major_version(experiment_name='b_score_test', func=log_test, args=0.9)
     # #
     # # # =======================================================
-    # MlflowManager().create_and_run_minor_version(experiment_name='b_score_test', version_name="1", func=log_test, args=0.9)
+    # MlflowManager().create_and_run_minor_version(experiment_name='b_score_test', version_name="1", func=log_test,
+    #                                              args=0.9)
     # MlflowManager().create_and_run_minor_version(experiment_name='b_score_test', version_name="1", func=log_test,
     #                                              args=0.8)
     #
@@ -311,65 +338,6 @@ if __name__ == '__main__':
     #
     # MlflowManager().create_and_run_minor_version(experiment_name='b_score_test', version_name="3", func=log_test,
     #                                              args=0.9)
-
-    # mlflow_manager.create_version(experiment_name='qd_score', version_name='v1.0.0_train')
-    # mlflow_manager.create_version(experiment_name='qd_score', version_name='v1.0.0_adjust')
-    # mlflow_manager.create_version(experiment_name='qd_score', version_name='v2.0.0_train')
-    # mlflow_manager.create_version(experiment_name='qd_score', version_name='v2.0.0_adjust')
-
-    # # =======================================================
-    # # 旧：开发版本在一级更新（刷新），定时任务二级更新（新增）, 自动调參和模型训练在一条记录里（自动调參不是每次都执行）
-    # mlflow_manager.run_develop_version(experiment_name='b_score', version_name='v1.0.0', adjust=True, p1=0.1, p2=0.1)
-    # mlflow_manager.run_develop_version(experiment_name='b_score', version_name='v1.0.0', adjust=False, p1=0.9, p2=0.9)
-    #
-    # mlflow_manager.run_offline_version(experiment_name='b_score', version_name='v1.0.0', run_name='offline_1',
-    #                                    adjust=True, p1=0.1, p2=0.1)
-    #
-    # mlflow_manager.run_offline_version(experiment_name='b_score', version_name='v1.0.0', run_name='offline_2',
-    #                                    adjust=False, p1=0.2, p2=0.8)
-    #
-    # mlflow_manager.run_offline_version(experiment_name='b_score', version_name='v1.0.0', run_name='offline_3',
-    #                                    adjust=True, p1=0.5, p2=0.5)
-
-    # # =======================================================
-    # # 新：开发版本在二级更新（新增），定时任务二级更新（新增）, 自动调參和模型训练在一条记录里（自动调參不是每次都执行）
-    # mlflow_manager.run_offline_version(experiment_name='b_score', version_name='v3.0.0', run_name='v3.0.1',
-    #                                    adjust=True, p1=0.1, p2=0.1)
-    # mlflow_manager.run_offline_version(experiment_name='b_score', version_name='v3.0.0', run_name='v3.0.2',
-    #                                    adjust=False, p1=0.2, p2=0.2)
-    # mlflow_manager.run_offline_version(experiment_name='b_score', version_name='v3.0.0', run_name='offline_1',
-    #                                    adjust=True, p1=0.9, p2=0.9)
-    # mlflow_manager.run_offline_version(experiment_name='b_score', version_name='v3.0.0', run_name='offline_2',
-    #                                    adjust=False, p1=0.4, p2=0.1)
-    # mlflow_manager.run_offline_version(experiment_name='b_score', version_name='v3.0.0', run_name='v3.0.3',
-    #                                    adjust=False, p1=0.2, p2=0.2)
-    # mlflow_manager.run_offline_version(experiment_name='b_score', version_name='v3.0.0', run_name='offline_3',
-    #                                    adjust=True, p1=0.4, p2=0.1)
-    # mlflow_manager.run_offline_version(experiment_name='b_score', version_name='v3.0.0', run_name='v3.0.4',
-    #                                    adjust=True, p1=0.2, p2=0.2)
-
-    # # =======================================================
-    # # 新：开发版本在二级更新（新增），定时任务二级更新（新增）, 自动调參和模型训练在一条记录里（自动调參不是每次都执行）
-    # mlflow_manager.create_version_level_2(experiment_name='b_score', version_name_1='v2.0.0', version_name_2='v2.1.0')
-    # mlflow_manager.create_version_level_2(experiment_name='b_score', version_name_1='v2.0.0', version_name_2='v2.2.0')
-    # mlflow_manager.create_version_level_2(experiment_name='b_score', version_name_1='v2.0.0', version_name_2='offline')
-
-    # mlflow_manager.run_offline_version_2(experiment_name='b_score', version_name_1='v2.0.0', version_name_2='v2.1.0',
-    #                                      run_name='v2.1.1', adjust=True, p1=0.1, p2=0.1)
-
-    # =======================================================
-    # 运行一个离线|定时版本
-    # run_offline_version(experiment_name='CYL_1', version_name='version_1', run_name='offile_1',
-    #                     step_id=0, l=0.1, alpha=0.1)
-    # run_offline_version(experiment_name='CYL_1', version_name='version_1', run_name='offile_2',
-    #                     step_id=0, l=0.2, alpha=0.2)
-
-    # run_offline_version(experiment_name='CYL_1', version_name='version_3', run_name='offile_1',
-    #                     step_id=0, l=0.1, alpha=0.1)
-
-    # =======================================================
-    # mlflow_manager.get_run()
-
     # =======================================================
     # experiment_id, run_id = mlflow_manager.init_version(experiment_name='b_score', version_name='v3.0.0')
     # print(experiment_id, run_id)
