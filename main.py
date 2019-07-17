@@ -109,6 +109,23 @@ class MlflowManager(object):
             minor_version_name = version_name + "." + str(count + 1)
             return minor_version_name
 
+    # 清理多余的子版本（按时间清理，保留运行时间最近的n个）
+    def clean_minor_versions(self, experiment_id, version_id, reserve_count=4):
+        try:
+            minor_versions = self.get_minor_versions(experiment_id=experiment_id, version_id=version_id)
+            if len(minor_versions) <= reserve_count:
+                return
+
+            # minor_versions按时间有序排列，只需要遍历后面的几个，直接删除即可
+            for i in range(reserve_count, len(minor_versions)):
+                print('[minor_version]', i, minor_versions[i].info.experiment_id, minor_versions[i].info.run_id,
+                      minor_versions[i].info.start_time)
+                self.client.delete_run(run_id=minor_versions[i].info.run_id)
+        except Exception as e:
+            content = '[clean_minor_versions][error] {}'.format(e)
+            content = '[{}] {} {}'.format(experiment_id, version_id, content)
+            print(content)
+
     # =======================================================
     # 获取某个实验中，所有主版本
     def get_major_versions(self, experiment_id, view='active_only'):
@@ -306,8 +323,10 @@ def replace_file(params_file, replace_params_file):
 
 
 if __name__ == '__main__':
-    replace_file(params_file='/Users/qudian/qudian-ml/qdmlflow/experiments_config/1/conf/model_params.conf',
-                 replace_params_file='/Users/qudian/qudian-ml/qdmlflow/bin/params_file.json')
+    # replace_file(params_file='/Users/qudian/qudian-ml/qdmlflow/experiments_config/1/conf/model_params.conf',
+    #              replace_params_file='/Users/qudian/qudian-ml/qdmlflow/bin/params_file.json')
+
+    MlflowManager().clean_minor_versions(experiment_id='3', version_id='959f8a720e4e46e4946b718e40b990df')
 
     # name, id = MlflowManager().get_best_version(experiment_name='Test_1')
     # print(name, id)
