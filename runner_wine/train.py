@@ -59,6 +59,7 @@ if __name__ == "__main__":
             mlflow.log_metric(key="rmse", value=rmse, step=epoch)               # 跟踪度量值
             mlflow.log_metric(key="r2", value=r2, step=epoch)
             mlflow.log_metric(key="mae", value=mae, step=epoch)
+            mlflow.log_artifact(local_path='/Users/qudian/qudian-ml/qdmlflow/bin/index.html', artifact_path='cyl_test')
 
         print("Elasticnet model (alpha=%f, l1_ratio=%f):" % (alpha, l1_ratio))
         print("  RMSE: %s" % rmse)
